@@ -1,0 +1,1347 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "v1",
+    "title": "Atomics WebAPI - Documentação de Integração",
+    "description": "# Introdução\nServiço de integração RESTful para o sistema Atomics.\n# Topologia e Arquitetura\nO Atomics é uma plataforma capaz realizar a análise eletrônica dos documentos, reduzindo drasticamente o tempo de análise. Dentre suas funcionalidades, podemos destacar:\n\r - Classificação eletrônica (tipificação);\r - Verificação da Assinatura;\r - Validação de Preenchimento dos campos;\r - Extração de informações (OCR 2° camada e estruturado)\r - Facematch\r - Prova de vida\r - IDonline para preenchimento online de formulários \n\nSob a ótica da segurança da informação, uma das grandes vantagens do Atomics é garantir que os dados serão analisados por sistemas (eletronicamente), evitando que o ser humano tenha acesso, por exemplo, à documentação e dados sensíveis do cliente – consequentemente evitando fraudes internas e utilização indesejada de informações.\n\nBenefícios\n\n\r - Aumento da Produtividade através da validação eletrônica dos documentos, conferências, comparações e cálculos automáticos.\r - Agilidade para aprovar uma proposta do cliente com velocidade e segurança.\r - Redução do trabalho manual da sua equipe. Eles irão tratar somente as exceções, e a tecnologia cuidará das atividades operacionais.\r - Redução de risco ao analisar eletronicamente 100% dos documentos enviados, ao invés da utilização de uma amostragem.\r - Redução de custo ao reduzir o esforço da formalização e os erros em decorrência do alto volume\r - Escalabilidade para suportar os picos de produção e a sazonalidade da operação\n\n# Hospedagem\nA plataforma Atomics é hospedada em nuvem utilizando a infraestrutura Cloud Computing. Nesta, utilizamos exclusivamente o Datacenter localizado no Brasil (São Paulo). Desta forma atendemos à exigência do Banco Central do Brasil no que se referente ao processamento dentro das fronteiras nacionais. Por característica, o Atomics é uma aplicação Simply com altíssimo consumo de processamento (CPU) e o demanda constante de treinamento da sua rede neural. Desta forma, os clientes Simply se beneficiam da escalabilidade proporcionada pela infraestrutura em nuvem. Como exemplo prático, em determinados horários de pico, demandamos mais de 200 servidores simultaneamente para atender ao volume de documentos recebidos de nossos clientes.\n\n  Em relação ao Banco de Dados, o utilizamos como serviço, garantindo assim a aplicação das melhores práticas de gestão (backups, atualizações de segurança, etc.) e mantendo nosso foco na evolução dos algoritmos e técnicas necessárias para a constante evolução do produto Atomics.\n\n# Comunicação\nA comunicação de dados entre nossos clientes (Bancos e demais empresas) e a Simply (Atomics), ocorre exclusivamente através de canal criptografado (HTTP/SSL – Security Socket Layer), garantindo o sigilo das informações trafegadas.\n\n  Através de um token, garantimos a autenticação do usuário/senha que, uma vez autorizado, nos envia lotes de documentos (imagens) para processamento. Este token possui um prazo de expiração, exigindo nova autenticação após determinado tempo.\n\nAlguns clientes utilizam adicionalmente a validação de IP de origem. Desta forma, nossa aplicação apenas aceita se comunicar com os endereços IP previamente cadastrados para aquele determinado cliente.\n\n\n# Processamento e Scale\nAtravés de um algoritmo e serviço desenvolvido pela própria Simply, conseguimos prever o volume de servidores necessários para o processamento da fila de documentos/requisições, realizando assim, automaticamente, o scale up (aumento) ou scale down (redução) do número de instâncias de máquinas virtuais necessárias.\n\nCada um destes servidores (máquinas virtuais) envolvidas no scale, possui a característica stateless, não armazenando nenhuma informação, mas sim processando aquela demanda que lhe é requisitada. Esta característica é necessária para garantir que novas máquinas possam ser iniciadas e extinguidas sem nenhum impacto para a aplicação Atomics.\n\n# Armazenamento\nOs clientes da plataforma Atomics optam por armazenar (ou não) os documentos em nuvem com a Simply.\n\nCaso a opção seja pelo não armazenamento, todo documento recebido eletronicamente pela Simply (enviado através do canal criptografado de comunicação), é imediatamente excluído após seu processamento. Desta forma, nenhuma cópia (original ou de segurança), será mantida pela Simply.\n\nCaso o cliente deseje armazenar seus documentos em nuvem com a Simply, disponibilizamos a opção de criptografia deste container de dados. Desta forma, apenas o cliente (de posse de sua chave), terá acesso à cópia dos documentos digitalizados. A opção de armazenamento em nuvem tem sido utilizada como cópia/contingência, inclusive para cumprir exigências regulatórias do Banco Central do Brasil.\n\n\n# Ambientes\nNa lista abaixo estão as URIs utilizadas nas transações do webservice. Essas URIs serão utilizadas para realizar envios e consultas de solicitações.\n\nURIs Produção\n1. URI Login\r - https://{endereco_producao}/Token\n2. URI Inclusão Solicitação\r - https://{endereco_producao}/api/v1/tipificacao\n3. URI Consulta Solicitação\r - https://{endereco_producao}/api/v1/tipificacao/{Solicitacao}\n4. URI Retorno de Arquivos\r - https://{endereco_producao}/api/v1/tipificacao/retornararquivo/{Solicitacao}?codigoArquivo={CodigoArquivo}\n\nURIs Homologação\n1. URI Login\r - https://{endereco_homologacao}/Token\n2. URI Inclusão Solicitação\r - https://{endereco_homologacao}/api/v1/tipificacao\n3. URI Consulta Solicitação\r - https://{endereco_homologacao}/api/v1/tipificacao/{Solicitacao}\n4. URI Retorno de Arquivos\r - https://{endereco_homologacao}/api/v1/tipificacao/retornararquivo/{Solicitacao}?codigoArquivo={CodigoArquivo}\n",
+    "contact": {
+      "name": "Simply",
+      "email": "suporte@simply.com.br"
+    },
+    "x-logo": {
+      "url": "https://atomics.simply.com.br/content/imagens/logo-branca.png",
+      "altText": "Logo"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/AtomicsWebAPI",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/token": {
+      "post": {
+        "tags": [
+          "Autenticacao"
+        ],
+        "summary": "Tipificação e VAR ‐ Login",
+        "description": "Para acesso ao Atomics, é necessário efetuar o login informando o usuário e senha.",
+        "operationId": "Token",
+        "consumes": [
+          "application/json",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "required": [
+                "username",
+                "password"
+              ],
+              "type": "object",
+              "properties": {
+                "username": {
+                  "description": "informe_seu_usuario",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "informe_sua_senha",
+                  "type": "string"
+                },
+                "grant_type": {
+                  "description": "password",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "access_token": {
+                  "type": "string",
+                  "example": "token_de_acesso"
+                },
+                "token_type": {
+                  "type": "String",
+                  "example": "bearer"
+                },
+                "expires_in": {
+                  "type": "string",
+                  "example": "86399"
+                },
+                "userName": {
+                  "type": "string",
+                  "example": "nome_usuario"
+                },
+                ".issued": {
+                  "format": "date-time",
+                  "type": "string",
+                  "example": "Tue, 17 Apr 2018 18:48:10 GMT"
+                },
+                ".expires": {
+                  "format": "date-time",
+                  "type": "string",
+                  "example": "Wed, 18 Apr 2018 18:48:10 GMT"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "O usuario/senha informado não é válido."
+                },
+                "error_description": {
+                  "type": "string",
+                  "example": "O usuario/senha informado não é válido."
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C#",
+            "label": "C#",
+            "source": "public static async Task LoginAtomics(string usuario, string senha)\n{\n  try\n   {\n    //recupera token de acesso\n    using (var client = new HttpClient\n    (new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.GZip | \n     DecompressionMethods.Deflate\n    }))\n    { \n      client.BaseAddress = new Uri(UrlBase);\n      var data = new Dictionary();\n      //adiciona os campos de usuário\n      data.Add(\"username\", usuario);\n      data.Add(\"password\", senha);\n      data.Add(\"grant_type\", \"password\");\n      FormUrlEncodedContent form = new FormUrlEncodedContent(data);\n      client.DefaultRequestHeaders.Add(\"Accept\", \"application/json\");\n      HttpResponseMessage resposta = await client.PostAsync(\"token\", form);\n      resposta.EnsureSuccessStatusCode();\n      string result2 = await resposta.Content.ReadAsStringAsync();\n      JObject objeto = JObject.Parse(result2);\n      BearerToken = objeto[\"access_token\"].ToString();\n    }\n  }\n  catch (Exception e)\n  { \n    //Sua excessão\n }\n}"
+          },
+          {
+            "lang": "PHP",
+            "label": "PHP",
+            "source": "$curl = curl_init(); \n\ncurl_setopt_array($curl, array(\n\t\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",   \n\tCURLOPT_MAXREDIRS => 10,  \n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,  \n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,  \n\tCURLOPT_CUSTOMREQUEST => \"POST\",       \n\tCURLOPT_POSTFIELDS => \"username = XXXXXXXX & password = XXXXXXXX & grant_type = password\",    \n\tCURLOPT_HTTPHEADER => array(      \n\t\t\"Accept: application/json\",   \n\t\t\"Content-Type: application/x-www-form-urlencoded\"   \n\t), \n));\n\n$response = curl_exec($curl);    \ncurl_close($curl);   \n$token_simply = json_decode($response);    \n$token_simply__ = \"\";\n\nif (isset($token_simply->access_token)) {    \n\t$token_simply__ = $token_simply->access_token;  \n}\n\nelse if (isset($token_simply[\"access_token\"])) { \n\t$token_simply__ = $token_simply[\"access_token\"];   \n}"
+          },
+          {
+            "lang": "NODE",
+            "label": "NODE",
+            "source": "var request = require('request');\nvar options = {\n  'method': 'POST',\n  'url': 'URL_BASE',\n  'headers': {\n    'Accept': 'application/json',\n    'Content-Type': 'application/x-www-form-urlencoded'\n  },\n  form: {\n    'username': 'xxxxxxx',\n    'password': 'xxxxxxx',\n    'grant_type': 'password'\n  }\n};\n\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  var tokenJSON = JSON.parse(response.body);\n});"
+          }
+        ]
+      }
+    },
+    "/api/v1/antifraude/{codigo}": {
+      "get": {
+        "tags": [
+          "AntiFraude"
+        ],
+        "summary": "VAR - Consulta",
+        "description": "Utilize esse procedimento para consultar o retorno dos documentos enviados para análise\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a análise de risco deles",
+        "operationId": "AntiFraude_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "description": "Código da solicitação gerado no momento da criação.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "detalhar",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "ocr",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solicitação encontrada.",
+            "schema": {
+              "$ref": "#/definitions/RetornoSolicitacaoTipificacao"
+            }
+          },
+          "401": {
+            "description": "Usuário não logado, ou não possui acesso à solicitação informada."
+          },
+          "404": {
+            "description": "Solicitação não encontrada."
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    },
+    "/api/v1/antifraude": {
+      "post": {
+        "tags": [
+          "AntiFraude"
+        ],
+        "summary": "VAR - Inclusão",
+        "description": "Utilize esse procedimento para enviar os documentos que onde serão feitas as análises de risco\r\n<br /><br />\r\nEsse endpoint irá realizar a validação de risco (fraudes) na frente e no verso enviados",
+        "operationId": "AntiFraude_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    },
+    "/api/v1/antifraude/facematch": {
+      "post": {
+        "tags": [
+          "AntiFraude"
+        ],
+        "summary": "Incluir uma solicitação de face matchs.",
+        "operationId": "AntiFraude_PostFaceMatch",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    },
+    "/api/v1/antifraude/addface": {
+      "post": {
+        "tags": [
+          "AntiFraude"
+        ],
+        "summary": "Incluir uma solicitação de face matchs.",
+        "operationId": "AntiFraude_PostAddFace",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    },
+    "/api/v1/operacional/usuario": {
+      "post": {
+        "tags": [
+          "Operacional"
+        ],
+        "summary": "Habilitar ou Desabilitar Usuário",
+        "description": "A solicitação deverá ser feita usando multi-part form, informando os seguintes dados\r\n           Usuario: Parâmetro textual obrigatório informado o username dentro do multipart form da requisição,\r\n           Ativo: Parâmetro booleano obrigatório informado dentro do multipart form da requisição.",
+        "operationId": "Operacional_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na alteração do status do usuário."
+          }
+        }
+      }
+    },
+    "/api/v1/operacional/faturaFeatures": {
+      "get": {
+        "tags": [
+          "Operacional"
+        ],
+        "summary": "Consultar Fatura Features",
+        "description": "A solicitação deverá ser feita usando multi-part form, informando os seguintes dados\r\n           Ano: Parâmetro textual obrigatório informado o ano dentro do multipart form da requisição,",
+        "operationId": "Operacional_GetFeatures",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro ao retornar o relatório."
+          }
+        }
+      }
+    },
+    "/api/v1/operacional/faturaKitsPaginas": {
+      "get": {
+        "tags": [
+          "Operacional"
+        ],
+        "summary": "Consultar Fatura Kits e Paginas",
+        "description": "A solicitação deverá ser feita usando multi-part form, informando os seguintes dados\r\n           Ano: Parâmetro textual obrigatório informado o ano dentro do multipart form da requisição,",
+        "operationId": "Operacional_GetKitsPaginas",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "responses": {
+          "200": {
+            "description": "Operação realizada com sucesso",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro ao retornar o relatório."
+          }
+        }
+      }
+    },
+    "/api/v1/tipificacao/{codigo}": {
+      "get": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Consulta de Solicitação",
+        "description": "Utilize esse procedimento para consultar o retorno dos documentos enviados para tipificação.\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a eles (tipo do documento, \r\nOCR, validação e extração de dados, antifraude, validação de assinatura, dentre outros).",
+        "operationId": "Tipificacao_Get",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "description": "Código da solicitação gerado no momento da criação.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "detalhar",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "ocr",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solicitação encontrada.",
+            "schema": {
+              "$ref": "#/definitions/RetornoSolicitacaoTipificacao"
+            }
+          },
+          "401": {
+            "description": "Usuário não logado, ou não possui acesso à solicitação informada."
+          },
+          "404": {
+            "description": "Solicitação não encontrada."
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C#",
+            "label": "C#",
+            "source": "public static async Task ConsultaSolicitacao(string codigoSolicitacao) {   try\n   {\n      if (BearerToken == null)\n         throw new Exception(\"O token não foi recuperado. Utilize o método de login.\");\n\n      using (var client = new HttpClient(new HttpClientHandler { AutomaticDecompression \n= DecompressionMethods.Deflate | DecompressionMethods.GZip}))      {\n         client.BaseAddress = new Uri(UrlBase);\n         client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n         string resposta = await client.GetStringAsync(\"api/v1/tipificacao/\" \n         + codigoSolicitacao + \"?detalhar=true&ocr=true\");\n         dynamic retorno = JsonConvert.DeserializeObject(resposta);\n         return retorno;\n      }\n   }\n   catch (Exception e)\n   {\n      //Sua excessão\n   }\n   return null;\n}\n"
+          }
+        ]
+      }
+    },
+    "/api/v1/tipificacao/retornararquivo/{codigo}": {
+      "get": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Download de Arquivos - Bytes",
+        "description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
+        "operationId": "Tipificacao_RetornarArquivo",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "description": "Codigo da solicitação",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "codigoArquivo",
+            "in": "query",
+            "description": "Codigo do arquivo a ser retornado",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tipificacao/retornarArquivoBase64/{codigo}": {
+      "get": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Download de Arquivos - Base64",
+        "description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
+        "operationId": "Tipificacao_RetornarArquivoJson",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "description": "Codigo da solicitação",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "codigoArquivo",
+            "in": "query",
+            "description": "Codigo do arquivo a ser retornado",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tipificacao": {
+      "post": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Inclusão Sincrona",
+        "description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
+        "operationId": "Tipificacao_Post",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostTipificacao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "C#",
+            "label": "C#",
+            "source": "public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {  try\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
+          },
+          {
+            "lang": "PHP",
+            "label": "PHP",
+            "source": "$curlPost = curl_init(); $arqs = array(); $arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\")); \n $arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\")); \n\ncurl_setopt_array($curlPost, array( \tCURLOPT_URL => \"URL_BASE\", \tCURLOPT_RETURNTRANSFER => true,CURLOPT_ENCODING => \"\", \n CURLOPT_MAXREDIRS => 10,CURLOPT_TIMEOUT => 0,\nCURLOPT_FOLLOWLOCATION => true, \tCURLOPT_SSL_VERIFYPEER => false, \nCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, \nCURLOPT_CUSTOMREQUEST => \"POST\", \tCURLOPT_POSTFIELDS => array('CodigoLegado'  => \"55555\", \n'arquivo[0]' => $arqs[0], \n'arquivo[1]' => $arqs[1]), \tCURLOPT_HTTPHEADER => array( \n\n\"Authorization: Bearer {$token_simply__}\", \n), )); $responsePost = curl_exec($curlPost); curl_close($curlPost);\n"
+          },
+          {
+            "lang": "NODE",
+            "label": "NODE",
+            "source": "var fs = require('fs'); var options = {    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\nrequest(options, function(error, response) {    if (error) throw new Error(error);\n    console.log(response.body);\n});\n"
+          }
+        ]
+      }
+    },
+    "/api/v1/tipificacaoJson": {
+      "post": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Inclusão Sincrona Json",
+        "description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
+        "operationId": "Tipificacao_PostJson",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostJSon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    },
+    "/api/v1/tipificacaoSync": {
+      "post": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Tipificação Sincrona",
+        "description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar apenas documentos de RG e CNH e deve ser enviado 1 documento por solicitação.",
+        "operationId": "Tipificacao_PostSync",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostTipificacaoSync"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "$ref": "#/definitions/RetornoTipificacaoJsonSync"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        },
+        "x-codeSamples": []
+      }
+    },
+    "/api/v1/tipificacaoSyncJson": {
+      "post": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Tipificação Sincrona Json",
+        "description": "A solicitação deverá ser feita usando multi-part form, informando\r\n           todos os arquivos para tipificação, e alguns dados adicionais:\r\n           CodigoLegado: Parâmetro textual obrigatório informado dentro do multipart form da requisição. Contém um código do sistema legado que será associado\r\n           a esta solicitação.\r\n           Prioridade: Parâmetro numérico opcional informado dentro do multipart form da requisição. Contém um valor válido entre \r\n           MuitoAlta = 20, Alta = 40, Normal = 60,  Baixa = 80, MuitoBaixa = 100.",
+        "operationId": "Tipificacao_PostSyncJson",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostJSon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    },
+    "/api/v1/tipificacao/incluirarquivos/{codigo}": {
+      "post": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Inclusão de documento - Bytes",
+        "description": "A solicitação deverá ser feita usando multi-part form, informando\r\n           todos os arquivos para tipificação, e alguns dados adicionais:\r\n           CodigoLegado: Parâmetro textual obrigatório informado dentro do multipart form da requisição. Contém um código do sistema legado que será associado\r\n           a esta solicitação.\r\n           Prioridade: Parâmetro numérico opcional informado dentro do multipart form da requisição. Contém um valor válido entre \r\n           MuitoAlta = 20, Alta = 40, Normal = 60,  Baixa = 80, MuitoBaixa = 100.",
+        "operationId": "Tipificacao_IncluirArquivos",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    },
+    "/api/v1/tipificacao/incluirarquivosBase64": {
+      "post": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Inclusão de documento - Base64",
+        "description": "A solicitação deverá ser feita usando multi-part form, informando\r\n           todos os arquivos para tipificação, e alguns dados adicionais:\r\n           CodigoLegado: Parâmetro textual obrigatório informado dentro do multipart form da requisição. Contém um código do sistema legado que será associado\r\n           a esta solicitação.\r\n           Prioridade: Parâmetro numérico opcional informado dentro do multipart form da requisição. Contém um valor válido entre \r\n           MuitoAlta = 20, Alta = 40, Normal = 60,  Baixa = 80, MuitoBaixa = 100.",
+        "operationId": "Tipificacao_IncluirArquivosBase64",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostArquivoJson"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    },
+    "/api/v1/tipificacao/iniciarprocessamento/{codigo}": {
+      "post": {
+        "tags": [
+          "Tipificacao"
+        ],
+        "summary": "Iniciar processamento",
+        "description": "A solicitação deverá ser feita usando multi-part form, informando\r\n           todos os arquivos para tipificação, e alguns dados adicionais:\r\n           CodigoLegado: Parâmetro textual obrigatório informado dentro do multipart form da requisição. Contém um código do sistema legado que será associado\r\n           a esta solicitação.\r\n           Prioridade: Parâmetro numérico opcional informado dentro do multipart form da requisição. Contém um valor válido entre \r\n           MuitoAlta = 20, Alta = 40, Normal = 60,  Baixa = 80, MuitoBaixa = 100.",
+        "operationId": "Tipificacao_IniciarProcessamento",
+        "consumes": [],
+        "produces": [
+          "application/json",
+          "text/json",
+          "application/xml",
+          "text/xml"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso na inclusão da solicitação.",
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "Ocorreu um erro na inclusão da solicitação."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RetornoSolicitacaoTipificacao": {
+      "type": "object",
+      "properties": {
+        "CodigoSolicitacao": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "CodigoSolicitacaoVAR": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "CodigoLegado": {
+          "type": "string"
+        },
+        "DataSolicitacao": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "DataProcessamento": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Status": {
+          "format": "int32",
+          "enum": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "type": "integer"
+        },
+        "TipoArquivo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RetornoTipoArquivo"
+          }
+        }
+      }
+    },
+    "RetornoTipoArquivo": {
+      "type": "object",
+      "properties": {
+        "TipoArquivo": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "NomeTipoArquivo": {
+          "type": "string"
+        },
+        "FolhaInteira": {
+          "type": "boolean"
+        },
+        "VersaoDocumento": {
+          "type": "string"
+        },
+        "PossuiAssinatura": {
+          "type": "boolean"
+        },
+        "CamposPreenchidos": {
+          "type": "boolean"
+        },
+        "CamposManuscritos": {
+          "type": "boolean"
+        },
+        "ImagemColorida": {
+          "type": "boolean"
+        },
+        "ImagemRotacionada": {
+          "type": "boolean"
+        },
+        "Metadados": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "Campos": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Campos"
+            }
+          }
+        },
+        "Indices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IndicesDoc"
+          }
+        },
+        "ArquivosRetorno": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ArquivoRetorno"
+          }
+        }
+      }
+    },
+    "Campos": {
+      "type": "object",
+      "properties": {
+        "Nome": {
+          "type": "string"
+        },
+        "Valor": {
+          "type": "object"
+        },
+        "Tipo": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "IndicesDoc": {
+      "type": "object",
+      "properties": {
+        "Nome": {
+          "type": "string"
+        },
+        "Termos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TermoIndice"
+          }
+        }
+      }
+    },
+    "ArquivoRetorno": {
+      "type": "object",
+      "properties": {
+        "CodigoArquivo": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "NomeArquivo": {
+          "type": "string"
+        },
+        "NomeCampo": {
+          "type": "string"
+        },
+        "Tipo": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "TermoIndice": {
+      "type": "object",
+      "properties": {
+        "Termo": {
+          "type": "string"
+        },
+        "X": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "Y": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "Altura": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "Largura": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "IDadosArquivo": {
+      "type": "object",
+      "properties": {
+        "NomeOriginal": {
+          "type": "String"
+        },
+        "ArquivoValido": {
+          "type": "boolean"
+        },
+        "Bytes": {
+          "format": "byte",
+          "type": "string"
+        }
+      }
+    },
+    "PostTipificacao": {
+      "required": [
+        "CodigoLegado",
+        "Arquivos"
+      ],
+      "type": "object",
+      "properties": {
+        "EnvioParcial": {
+          "description": "Ao setar esse campo como true, você está sinalizando o Atomics que vai enviar os arquivos de forma assincrona",
+          "type": "boolean",
+          "example": false
+        },
+        "CodigoLegado": {
+          "description": "Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
+          "type": "String"
+        },
+        "Arquivos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IDadosArquivo"
+          }
+        },
+        "ExtrairDados": {
+          "description": "Campo que poderá ser utilizado para definir se os dados serão extraídos pelo Atomics e retornados pelo serviço.",
+          "type": "boolean",
+          "example": false
+        },
+        "PerfilTipificacao": {
+          "description": "Campo que poderá ser utilizado para definir qual conjunto de documentos será tipificado pela solicitação, esta informação será repassada pela Simply de acordo com os perfis criados para o cliente",
+          "type": "String"
+        }
+      }
+    },
+    "PostJSon": {
+      "type": "object",
+      "properties": {
+        "CodigoLegado": {
+          "type": "string"
+        },
+        "PerfilTipificacao": {
+          "type": "string"
+        },
+        "Arquivos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ArquivoJson"
+          }
+        }
+      }
+    },
+    "ArquivoJson": {
+      "type": "object",
+      "properties": {
+        "NomeArquivo": {
+          "type": "string"
+        },
+        "ImageData": {
+          "format": "byte",
+          "type": "string"
+        }
+      }
+    },
+    "RetornoTipificacaoJsonSync": {
+      "type": "object",
+      "properties": {
+        "Arquivos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ArquivoSync"
+          }
+        },
+        "ArquivosExtracao": {
+          "type": "object"
+        },
+        "CodigoSolicitacao": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "CodigoSolicitacaoVAR": {
+          "type": "object"
+        },
+        "CodigoLegado": {
+          "type": "string"
+        },
+        "DataSolicitacao": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "DataProcessamento": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "Status": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "TipoArquivo": {
+          "type": "object"
+        }
+      }
+    },
+    "ArquivoSync": {
+      "type": "object",
+      "properties": {
+        "OCR": {
+          "type": "string"
+        },
+        "Nome": {
+          "type": "string"
+        },
+        "Hash": {
+          "type": "string"
+        },
+        "TipoArquivo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TipoArquivo"
+          }
+        }
+      }
+    },
+    "TipoArquivo": {
+      "type": "object",
+      "properties": {
+        "TipoArquivo": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "NomeTipoArquivo": {
+          "type": "string"
+        },
+        "FolhaInteira": {
+          "type": "boolean"
+        },
+        "VersaoDocumento": {
+          "type": "object"
+        },
+        "PossuiAssinatura": {
+          "type": "object"
+        },
+        "CamposPreenchidos": {
+          "type": "object"
+        },
+        "CamposManuscritos": {
+          "type": "object"
+        },
+        "ImagemColorida": {
+          "type": "object"
+        },
+        "ImagemRotacionada": {
+          "type": "boolean"
+        },
+        "Metadados": {
+          "$ref": "#/definitions/MetadadosSync"
+        },
+        "Campos": {
+          "type": "object"
+        },
+        "Indices": {
+          "type": "object"
+        },
+        "ArquivosRetorno": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ArquivosRetorno"
+          }
+        }
+      }
+    },
+    "MetadadosSync": {
+      "type": "object",
+      "properties": {
+        "EstadoTexto": {
+          "type": "string"
+        },
+        "BrasaoTexto": {
+          "type": "string"
+        },
+        "OrgaoTexto": {
+          "type": "string"
+        },
+        "AlfabetizadoTexto": {
+          "type": "string"
+        },
+        "RegistroTexto": {
+          "type": "string"
+        },
+        "ExpedicaoTexto": {
+          "type": "string"
+        },
+        "NomeTexto": {
+          "type": "string"
+        },
+        "FiliacaoTexto": {
+          "type": "string"
+        },
+        "NomePaiTexto": {
+          "type": "string"
+        },
+        "NomeMaeTexto": {
+          "type": "string"
+        },
+        "NaturalidadeTexto": {
+          "type": "string"
+        },
+        "DataNascimentoTexto": {
+          "type": "string"
+        },
+        "OrigemTexto": {
+          "type": "string"
+        },
+        "CPFTexto": {
+          "type": "string"
+        },
+        "ViaTexto": {
+          "type": "string"
+        }
+      }
+    },
+    "ArquivosRetorno": {
+      "type": "object",
+      "properties": {
+        "CodigoArquivo": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "NomeArquivo": {
+          "type": "string"
+        },
+        "NomeCampo": {
+          "type": "object"
+        },
+        "Tipo": {
+          "format": "int32",
+          "type": "integer"
+        }
+      }
+    },
+    "PostTipificacaoSync": {
+      "required": [
+        "CodigoLegado",
+        "Arquivos"
+      ],
+      "type": "object",
+      "properties": {
+        "CodigoLegado": {
+          "description": "Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
+          "type": "String"
+        },
+        "Arquivos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IDadosArquivo"
+          }
+        }
+      }
+    },
+    "PostArquivoJson": {
+      "type": "object",
+      "properties": {
+        "CodigoSolicitacao": {
+          "type": "string"
+        },
+        "NomeArquivo": {
+          "type": "string"
+        },
+        "ImageData": {
+          "format": "byte",
+          "type": "string"
+        }
+      }
+    },
+    "Login": {
+      "required": [
+        "username",
+        "password"
+      ],
+      "type": "object",
+      "properties": {
+        "username": {
+          "description": "informe_seu_usuario",
+          "type": "string"
+        },
+        "password": {
+          "description": "informe_sua_senha",
+          "type": "string"
+        },
+        "grant_type": {
+          "description": "password",
+          "type": "string"
+        }
+      }
+    },
+    "LoginSucesso": {
+      "type": "object",
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "example": "token_de_acesso"
+        },
+        "token_type": {
+          "type": "String",
+          "example": "bearer"
+        },
+        "expires_in": {
+          "type": "string",
+          "example": "86399"
+        },
+        "userName": {
+          "type": "string",
+          "example": "nome_usuario"
+        },
+        ".issued": {
+          "format": "date-time",
+          "type": "string",
+          "example": "Tue, 17 Apr 2018 18:48:10 GMT"
+        },
+        ".expires": {
+          "format": "date-time",
+          "type": "string",
+          "example": "Wed, 18 Apr 2018 18:48:10 GMT"
+        }
+      }
+    },
+    "LoginErro": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string",
+          "example": "O usuario/senha informado não é válido."
+        },
+        "error_description": {
+          "type": "string",
+          "example": "O usuario/senha informado não é válido."
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Exemplos de Dados Estruturados, Parâmetros de Entrada e Configurações Postman",
+    "url": "https://github.com/simply-atomics/Atomics/wiki"
+  }
+}

@@ -19,9 +19,7 @@ paths:
       tags:
         - Autenticacao
       summary: Tipificação e VAR ‐ Login
-      description: >-
-        Para acesso ao Atomics, é necessário efetuar o login informando o
-        usuário e senha.
+      description: Para acesso ao Atomics, é necessário efetuar o login informando o usuário e senha.
       operationId: Token
       consumes:
         - application/json
@@ -347,9 +345,8 @@ paths:
       x-codeSamples:
         - lang: C#
           label: C#
-          source: >
-            public static async Task ConsultaSolicitacao(string
-            codigoSolicitacao) {   try
+          source: |
+            public static async Task ConsultaSolicitacao(string codigoSolicitacao) {   try
                {
                   if (BearerToken == null)
                      throw new Exception("O token não foi recuperado. Utilize o método de login.");
@@ -375,9 +372,7 @@ paths:
       tags:
         - Tipificacao
       summary: Download de Arquivos - Bytes
-      description: >-
-        Através deste procedimento você poderá recuperar os arquivos de retorno
-        gerados pelo Atomics durante o processo de tipificação/extração.
+      description: Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.
       operationId: Tipificacao_RetornarArquivo
       consumes: []
       produces:
@@ -408,9 +403,7 @@ paths:
       tags:
         - Tipificacao
       summary: Download de Arquivos - Base64
-      description: >-
-        Através deste procedimento você poderá recuperar os arquivos de retorno
-        gerados pelo Atomics durante o processo de tipificação/extração.
+      description: Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.
       operationId: Tipificacao_RetornarArquivoJson
       consumes: []
       produces:
@@ -466,9 +459,8 @@ paths:
       x-codeSamples:
         - lang: C#
           label: C#
-          source: >
-            public static async Task IncluiSolicitacao(string[] arquivos, string
-            Legado = "55") {  try
+          source: |
+            public static async Task IncluiSolicitacao(string[] arquivos, string Legado = "55") {  try
               {
                  if (BearerToken == null)
                     throw new Exception("Token não foi recuperado. Utilize o método de login.");
@@ -511,7 +503,7 @@ paths:
           source: "$curlPost = curl_init(); $arqs = array(); $arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\")); \n $arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\")); \n\ncurl_setopt_array($curlPost, array( \tCURLOPT_URL => \"URL_BASE\", \tCURLOPT_RETURNTRANSFER => true,CURLOPT_ENCODING => \"\", \n CURLOPT_MAXREDIRS => 10,CURLOPT_TIMEOUT => 0,\nCURLOPT_FOLLOWLOCATION => true, \tCURLOPT_SSL_VERIFYPEER => false, \nCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, \nCURLOPT_CUSTOMREQUEST => \"POST\", \tCURLOPT_POSTFIELDS => array('CodigoLegado'  => \"55555\", \n'arquivo[0]' => $arqs[0], \n'arquivo[1]' => $arqs[1]), \tCURLOPT_HTTPHEADER => array( \n\n\"Authorization: Bearer {$token_simply__}\", \n), )); $responsePost = curl_exec($curlPost); curl_close($curlPost);\n"
         - lang: NODE
           label: NODE
-          source: >
+          source: |
             var fs = require('fs'); var options = {    'method': 'POST',
                 'url': 'URL_BASE',
                 'headers': {
@@ -538,9 +530,7 @@ paths:
                     'ExtrairDados': 'true'
                 }
             };
-
-            request(options, function(error, response) {    if (error) throw new
-            Error(error);
+            request(options, function(error, response) {    if (error) throw new Error(error);
                 console.log(response.body);
             });
   /api/v1/tipificacaoJson:
@@ -856,31 +846,22 @@ definitions:
     type: object
     properties:
       EnvioParcial:
-        description: >-
-          Ao setar esse campo como true, você está sinalizando o Atomics que vai
-          enviar os arquivos de forma assincrona
+        description: Ao setar esse campo como true, você está sinalizando o Atomics que vai enviar os arquivos de forma assincrona
         type: boolean
         example: false
       CodigoLegado:
-        description: >-
-          Campo que poderá ser utilizado para identificar a identidade do
-          sistema legado.
+        description: Campo que poderá ser utilizado para identificar a identidade do sistema legado.
         type: String
       Arquivos:
         type: array
         items:
           $ref: '#/definitions/IDadosArquivo'
       ExtrairDados:
-        description: >-
-          Campo que poderá ser utilizado para definir se os dados serão
-          extraídos pelo Atomics e retornados pelo serviço.
+        description: Campo que poderá ser utilizado para definir se os dados serão extraídos pelo Atomics e retornados pelo serviço.
         type: boolean
         example: false
       PerfilTipificacao:
-        description: >-
-          Campo que poderá ser utilizado para definir qual conjunto de
-          documentos será tipificado pela solicitação, esta informação será
-          repassada pela Simply de acordo com os perfis criados para o cliente
+        description: Campo que poderá ser utilizado para definir qual conjunto de documentos será tipificado pela solicitação, esta informação será repassada pela Simply de acordo com os perfis criados para o cliente
         type: String
   PostJSon:
     type: object
@@ -1026,9 +1007,7 @@ definitions:
     type: object
     properties:
       CodigoLegado:
-        description: >-
-          Campo que poderá ser utilizado para identificar a identidade do
-          sistema legado.
+        description: Campo que poderá ser utilizado para identificar a identidade do sistema legado.
         type: String
       Arquivos:
         type: array
@@ -1092,7 +1071,5 @@ definitions:
         type: string
         example: O usuario/senha informado não é válido.
 externalDocs:
-  description: >-
-    Exemplos de Dados Estruturados, Parâmetros de Entrada e Configurações
-    Postman
+  description: Exemplos de Dados Estruturados, Parâmetros de Entrada e Configurações Postman
   url: https://github.com/simply-atomics/Atomics/wiki
