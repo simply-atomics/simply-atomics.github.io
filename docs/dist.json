@@ -9,7 +9,7 @@
          "email":"suporte@simply.com.br"
       },
       "x-logo":{
-         "url":"https://atomics.simply.com.br/content/imagens/logo-branca.png",
+         "url":"https://simply-atomics.github.io/logo-branca.png",
          "altText":"Logo",
          "backgroundColor":"#0091ea"
       }
@@ -215,7 +215,7 @@
                   "in":"body",
                   "required":true,
                   "schema":{
-                     "$ref":"#/definitions/PostTipificacao"
+                     "$ref":"#/definitions/AntiFraude"
                   }
                }
             ],
@@ -239,7 +239,7 @@
                "Operacional"
             ],
             "summary":"Habilitar ou Desabilitar Usuário",
-            "description":"A solicitação deverá ser feita usando multi-part form, informando os seguintes dados\r\n           Usuario: Parâmetro textual obrigatório informado o username dentro do multipart form da requisição,\r\n           Ativo: Parâmetro booleano obrigatório informado dentro do multipart form da requisição.",
+            "description":"Utilize esse procedimento para gerenciar usuários\r\n<br /><br />\r\nNesse endpoint você pode realizar o gerenciamento de usuários no sistema",
             "operationId":"Operacional_Post",
             "consumes":[
                
@@ -269,7 +269,7 @@
                "Operacional"
             ],
             "summary":"Consultar Fatura Features",
-            "description":"A solicitação deverá ser feita usando multi-part form, informando os seguintes dados\r\n           Ano: Parâmetro textual obrigatório informado o ano dentro do multipart form da requisição,",
+            "description":"Utilize esse procedimento para gerenciar consultar Features\r\n<br /><br />\r\nNesse endpoint você pode consultar os dados de uso da plataforma",
             "operationId":"Operacional_GetFeatures",
             "consumes":[
                
@@ -299,7 +299,7 @@
                "Operacional"
             ],
             "summary":"Consultar Fatura Kits e Paginas",
-            "description":"A solicitação deverá ser feita usando multi-part form, informando os seguintes dados\r\n           Ano: Parâmetro textual obrigatório informado o ano dentro do multipart form da requisição,",
+            "description":"Utilize esse procedimento para consultar Fatura Kits e Paginas\r\n<br /><br />\r\nNesse endpoint você pode consultar os dados de uso da plataforma",
             "operationId":"Operacional_GetKitsPaginas",
             "consumes":[
                
@@ -383,7 +383,17 @@
                {
                   "lang":"C#",
                   "label":"C#",
-                  "source":"public static async Task ConsultaSolicitacao(string codigoSolicitacao) {   try\n   {\n      if (BearerToken == null)\n         throw new Exception(\"O token não foi recuperado. Utilize o método de login.\");\n\n      using (var client = new HttpClient(new HttpClientHandler { AutomaticDecompression \n= DecompressionMethods.Deflate | DecompressionMethods.GZip}))      {\n         client.BaseAddress = new Uri(UrlBase);\n         client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n         string resposta = await client.GetStringAsync(\"api/v1/tipificacao/\" \n         + codigoSolicitacao + \"?detalhar=true&ocr=true\");\n         dynamic retorno = JsonConvert.DeserializeObject(resposta);\n         return retorno;\n      }\n   }\n   catch (Exception e)\n   {\n      //Sua excessão\n   }\n   return null;\n}\n"
+                  "source":"\npublic static async Task ConsultaSolicitacao(string codigoSolicitacao)\n{\n   try\n   {\n      if (BearerToken == null)\n         throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n      using (var client = new HttpClient(new HttpClientHandler { \n\t  AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n      {\n         client.BaseAddress = new Uri(UrlBase);\n         client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer\" + BearerToken);\n         string resposta = await client.GetStringAsync(\"api/v1/tipificacao/\" \n         + codigoSolicitacao + \" ? detalhar = true & ocr = true\");\n         dynamic retorno = JsonConvert.DeserializeObject(resposta);\n         return retorno;\n      }\n   }\n   catch (Exception e)\n   {\n      //Sua excessão\n   }\n   return null;\n}"
+               },
+               {
+                  "lang":"PHP",
+                  "label":"PHP",
+                  "source":"\n$curl = curl_init();\n\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+               },
+               {
+                  "lang":"NODE",
+                  "label":"NODE",
+                  "source":"\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
                }
             ]
          }
@@ -430,7 +440,24 @@
                      "type":"object"
                   }
                }
-            }
+            },
+            "x-codeSamples":[
+               {
+                  "lang":"C#",
+                  "label":"C#",
+                  "source":"\npublic static async Task<byte[]> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n      byte[] byteArray = await client.GetByteArrayAsync(\"api/v1/tipificacao/retornararquivo/\n      + codigoSolicitacao + \"?codigoArquivo = \" + codigoArquivo);\n      return byteArray;\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
+               },
+               {
+                  "lang":"PHP",
+                  "label":"PHP",
+                  "source":"\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+               },
+               {
+                  "lang":"NODE",
+                  "label":"NODE",
+                  "source":"\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+               }
+            ]
          }
       },
       "/api/v1/tipificacao/retornarArquivoBase64/{codigo}":{
@@ -475,7 +502,24 @@
                      "type":"object"
                   }
                }
-            }
+            },
+            "x-codeSamples":[
+               {
+                  "lang":"C#",
+                  "label":"C#",
+                  "source":"\npublic static async Task<dynamic> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n     string resposta = await client.GetStringAsync(\"api/v1/tipificacao/retornararquivoBase64/\n     + codigoSolicitacao + \"?codigoArquivo=\" + codigoArquivo);\n     dynamic retorno = resposta;\n    }\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
+               },
+               {
+                  "lang":"PHP",
+                  "label":"PHP",
+                  "source":"\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+               },
+               {
+                  "lang":"NODE",
+                  "label":"NODE",
+                  "source":"\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+               }
+            ]
          }
       },
       "/api/v1/tipificacao":{
@@ -484,7 +528,7 @@
                "Tipificacao"
             ],
             "summary":"Inclusão Sincrona e Assincrona",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />\r\n**Utilize esse procedimento para enviar documentos ao Atomics de forma Assíncrona.**\r\n<br />\r\nApós realizar o POST informando que será feita a inclusão assíncrona, é necessário enviar os arquivos, um de cada vez para o Atomics\r\n<br />\r\n[Inclusão Documentos - Bytes](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IncluirArquivos)\r\n<br />\r\n[Inclusão Documentos - Base64](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IncluirArquivosBase64)\r\n<br /><br />\r\nApós ter feito o envio de todos os arquivos da solicitação, informar ao Atomics que o processamento pode ser iniciado\r\n[Iniciar processamento](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IniciarProcessamento)",
+            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />\r\n**Utilize esse procedimento para enviar documentos ao Atomics de forma Assíncrona.**\r\n<br />\r\nApós realizar o POST informando que será feita a inclusão assíncrona, é necessário enviar os arquivos, um de cada vez para o Atomics\r\n<br />\r\n[Inclusão Documentos - Bytes](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IncluirArquivos)\r\n<br />\r\n[Inclusão Documentos - Base64](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IncluirArquivosBase64)\r\n<br /><br />\r\nApós ter feito o envio de todos os arquivos da solicitação, informar ao Atomics que o processamento pode ser iniciado\r\n<br />\r\n[Iniciar processamento](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IniciarProcessamento)",
             "operationId":"Tipificacao_Post",
             "consumes":[
                
@@ -521,17 +565,17 @@
                {
                   "lang":"C#",
                   "label":"C#",
-                  "source":"public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {  try\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
+                  "source":"public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {\ntry\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
                },
                {
                   "lang":"PHP",
                   "label":"PHP",
-                  "source":"$curlPost = curl_init(); $arqs = array(); $arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\")); \n $arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\")); \n\ncurl_setopt_array($curlPost, array( \tCURLOPT_URL => \"URL_BASE\", \tCURLOPT_RETURNTRANSFER => true,CURLOPT_ENCODING => \"\", \n CURLOPT_MAXREDIRS => 10,CURLOPT_TIMEOUT => 0,\nCURLOPT_FOLLOWLOCATION => true, \tCURLOPT_SSL_VERIFYPEER => false, \nCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1, \nCURLOPT_CUSTOMREQUEST => \"POST\", \tCURLOPT_POSTFIELDS => array('CodigoLegado'  => \"55555\", \n'arquivo[0]' => $arqs[0], \n'arquivo[1]' => $arqs[1]), \tCURLOPT_HTTPHEADER => array( \n\n\"Authorization: Bearer {$token_simply__}\", \n), )); $responsePost = curl_exec($curlPost); curl_close($curlPost);\n"
+                  "source":"\n$curlPost = curl_init();\n\n$arqs = array();\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\"));\n\ncurl_setopt_array($curlPost, array(\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0],\n\t\t'arquivo[1]' => $arqs[1]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
                },
                {
                   "lang":"NODE",
                   "label":"NODE",
-                  "source":"var fs = require('fs'); var options = {    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\nrequest(options, function(error, response) {    if (error) throw new Error(error);\n    console.log(response.body);\n});\n"
+                  "source":"\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
                }
             ]
          }
@@ -620,7 +664,21 @@
                }
             },
             "x-codeSamples":[
-               
+               {
+                  "lang":"C#",
+                  "label":"C#",
+                  "source":"\npublic static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") \n{\n  try\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n     AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip})) \n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length),\n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacaoSync\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}"
+               },
+               {
+                  "lang":"PHP",
+                  "label":"PHP",
+                  "source":"\n$curlPost = curl_init(); \n\n$arqs = array(); \n\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n\ncurl_setopt_array($curlPost, array(\n\t\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
+               },
+               {
+                  "lang":"NODE",
+                  "label":"NODE",
+                  "source":"\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        }\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
+               }
             ]
          }
       },
@@ -630,7 +688,7 @@
                "Tipificacao"
             ],
             "summary":"Tipificação Sincrona Json",
-            "description":"A solicitação deverá ser feita usando multi-part form, informando\r\n           todos os arquivos para tipificação, e alguns dados adicionais:\r\n           CodigoLegado: Parâmetro textual obrigatório informado dentro do multipart form da requisição. Contém um código do sistema legado que será associado\r\n           a esta solicitação.\r\n           Prioridade: Parâmetro numérico opcional informado dentro do multipart form da requisição. Contém um valor válido entre \r\n           MuitoAlta = 20, Alta = 40, Normal = 60,  Baixa = 80, MuitoBaixa = 100.",
+            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar apenas documentos de RG e CNH e deve ser enviado 1 documento por solicitação.",
             "operationId":"Tipificacao_PostSyncJson",
             "consumes":[
                "application/json",
@@ -988,13 +1046,37 @@
          "type":"object",
          "properties":{
             "NomeOriginal":{
-               "type":"String"
+               "type":"string"
             },
             "ArquivoValido":{
                "type":"boolean"
             },
             "Bytes":{
                "format":"byte",
+               "type":"string"
+            }
+         }
+      },
+      "AntiFraude":{
+         "required":[
+            "CodigoLegado",
+            "Arquivo"
+         ],
+         "type":"object",
+         "properties":{
+            "CodigoLegado":{
+               "description":"Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
+               "type":"string"
+            },
+            "Arquivo":{
+               "description":"Deve conter os arquivos que serão tipificados e comparados pelo Facematch (Selfie e Documento).",
+               "type":"array",
+               "items":{
+                  "$ref":"#/definitions/IDadosArquivo"
+               }
+            },
+            "JsonParametros":{
+               "description":"Parâmetros informados ao VAR para customização de processamentos específicos (ver mais na seção \"Parâmetros de Entrada\")",
                "type":"string"
             }
          }
