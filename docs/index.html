@@ -19,6 +19,24 @@
         display:none
       }
     </style>
+    <script>
+      const Listen = (doc) => {
+        return {
+          on: (type, selector, callback) => {
+            doc.addEventListener(type, (event) => {
+              var elemento = document.getElementById("operation/Token")
+              var elementoUrlToken = elemento.getElementsByClassName("sc-dTSzeu hyeqlU");
+
+              elementoUrlToken[0].innerHTML = "<span>https://atomics-hom.simply.com.br</span>/token"
+              elementoUrlToken[1].innerHTML = "<span>https://atomics-api.simply.com.br</span>/token"
+
+            }, false);
+          }
+        }
+      };
+      Listen(document).on('click', '.sc-eEVmNe btuEDW', function (e) {
+      });
+  </script>
   </head>
   <body>
     <redoc spec-url='dist.json' hide-download-button></redoc>
