@@ -1554,11 +1554,11 @@
    },
    "x-servers":[
       {
-         "url":"https://atomics-hom.simply.com.br/api/v1/",
+         "url":"https://atomics-hom.simply.com.br",
          "description":"Homologação"
       },
       {
-         "url":"https://atomics-api.simply.com.br/api/v1/",
+         "url":"https://atomics-api.simply.com.br",
          "description":"Produção"
       }
    ],
