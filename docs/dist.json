@@ -25,7 +25,7 @@
             "tags":[
                "Autenticacao"
             ],
-            "summary":"Efetuanto Login",
+            "summary":"Efetuando Login",
             "description":"Para acesso ao Atomics, é necessário efetuar o login informando o usuário e senha.",
             "operationId":"Token",
             "consumes":[
