@@ -983,7 +983,7 @@
                   "1": "Processado",
                   "2": "Cancelado",
                   "3": "Bloquado",
-                  "4": "Aguardando arquivo"
+                  "4": "Aguardando arquivo",
                   "5": "Pendente reprocessamento"
                },
                "type":"integer"
