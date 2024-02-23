@@ -717,7 +717,7 @@
                "Tipificacao"
             ],
             "summary":"Tipificação e Extração Síncrona (IDOnline)",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
+            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN** - Tipificação e Extração<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
             "operationId":"Tipificacao_PostSyncExtracao",
             "consumes":[
                
@@ -758,7 +758,7 @@
                "Tipificacao"
             ],
             "summary":"Tipificação e Extração Síncrona Json (IDOnline)",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics no formato Json.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
+            "description":"Utilize esse procedimento para enviar documentos ao Atomics no formato Json.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN** - Tipificação e Extração\r\n<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
             "operationId":"Tipificacao_PostSyncExtracaoJson",
             "consumes":[
                "application/json",
