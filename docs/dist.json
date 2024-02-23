@@ -978,8 +978,8 @@
                   4,
                   5
                ],
-               x-enum-descriptions:["Pendente", "Processado", "Bloquado", "Aguardando arquivo", "Pendente reprocessamento"],
-               x-enum-varnames:[Pendente, Processado, Cancelado, Bloqueado, AguardandoArquivo, PendenteReprocessamento],
+               "x-enum-descriptions":["Pendente", "Processado", "Bloquado", "Aguardando arquivo", "Pendente reprocessamento"],
+               "x-enum-varnames":["Pendente", "Processado", "Cancelado", "Bloqueado", "AguardandoArquivo", "PendenteReprocessamento"],
                "type":"integer"
             },
             "TipoArquivo":{
