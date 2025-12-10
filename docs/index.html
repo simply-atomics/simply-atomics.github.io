@@ -2,44 +2,55 @@
 <html>
   <head>
     <title>Atomics Documentação</title>
-    <!-- needed for adaptive design -->
+
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
 
-    <!--
-    ReDoc doesn't change outer page styles
-    -->
     <style>
       body {
         margin: 0;
         padding: 0;
       }
+
+      /* Oculta cabeçalho do Redoc, se desejado */
       .sc-kYPZxB {
-        display:none
+        display: none;
       }
     </style>
+
     <script>
-      const Listen = (doc) => {
-        return {
-          on: (type, selector, callback) => {
-            doc.addEventListener(type, (event) => {
-              var elemento = document.getElementById("operation/Token")
-              var elementoUrlToken = elemento.getElementsByClassName("sc-dTSzeu hyeqlU");
+      function atualizarEndpointsToken() {
+        const operation = document.getElementById("operation/Token");
+        if (!operation) return;
 
-              elementoUrlToken[0].innerHTML = "<span>https://atomics-hom.simply.com.br</span>/token"
-              elementoUrlToken[1].innerHTML = "<span>https://atomics-api.simply.com.br</span>/token"
+        // Seleciona os spans com a URL da operação
+        const urls = operation.querySelectorAll('.http-verb-and-path span');
 
-            }, false);
-          }
+        if (urls.length >= 2) {
+          urls[0].innerHTML = "<span>https://atomics-hom.simply.com.br</span>/token";
+          urls[1].innerHTML = "<span>https://atomics-api.simply.com.br</span>/token";
         }
-      };
-      Listen(document).on('click', '.sc-eEVmNe btuEDW', function (e) {
+      }
+
+      // Espera o Redoc renderizar
+      document.addEventListener("DOMContentLoaded", () => {
+        // Redoc carrega de forma assíncrona
+        setTimeout(atualizarEndpointsToken, 1500);
+
+        // Também corrige quando o usuário clicar em algo que re-renderize a operação
+        document.addEventListener("click", () => {
+          setTimeout(atualizarEndpointsToken, 300);
+        });
       });
-  </script>
+    </script>
+
   </head>
+
   <body>
-    <redoc spec-url='dist.json' hide-download-button></redoc>
-    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"> </script>
+    <redoc spec-url="dist.json" hide-download-button></redoc>
+
+    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
   </body>
 </html>
