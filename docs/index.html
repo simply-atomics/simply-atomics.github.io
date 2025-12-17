@@ -49,7 +49,31 @@
   </head>
 
   <body>
-    <redoc spec-url="dist.json" hide-download-button></redoc>
+    <redoc 
+      spec-url="dist.json" 
+      hide-download-button
+      theme='{
+        "colors": {
+      "primary": {
+        "main": "#ff6c0c"
+      },
+      "text": {
+        "primary": "#58595b",
+        "secondary": "#7d868c"
+      },
+      "background": {
+        "default": "#ffffff"
+      },
+      "success": {
+        "main": "#0dd3ad"
+      }
+    },
+    "typography": {
+      "fontFamily": "Inter, sans-serif",
+      "fontSize": "14px"
+    }
+  }'>     
+  </redoc>
     <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
   </body>
 </html>
