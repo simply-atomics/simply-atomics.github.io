@@ -944,6 +944,69 @@
             }
          }
       }
+      "/api/v1/tipificacao/{codigo}":{
+         "get":{
+            "tags":[
+               "Atomics Sincrono"
+            ],
+            "summary":"Consulta de Solicitação",
+            "description":"Utilize esse procedimento para consultar o retorno dos documentos enviados para tipificação.\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a eles (tipo do documento, \r\nOCR, validação e extração de dados, antifraude, validação de assinatura, dentre outros).",
+            "operationId":"Tipificacao_Get",
+            "consumes":[
+               
+            ],
+            "produces":[
+               "application/json",
+               "text/json",
+               "application/xml",
+               "text/xml"
+            ],
+            "parameters":[
+               {
+                  "name":"codigo",
+                  "in":"path",
+                  "description":"Código da solicitação gerado no momento da criação.",
+                  "required":true,
+                  "type":"integer",
+                  "format":"int64"
+               }
+            ],
+            "responses":{
+               "401":{
+                  "description":"Usuário não logado, ou não possui acesso à solicitação informada."
+               },
+               "404":{
+                  "description":"Solicitação não encontrada."
+               },
+               "200":{
+                  "description":"Solicitação encontrada.",
+                  "schema":{
+                     "$ref":"#/definitions/RetornoSolicitacaoTipificacao"
+                  }
+               },
+               "500":{
+                  "description":"Ocorreu um erro na inclusão da solicitação."
+               }
+            },
+            "x-codeSamples":[
+               {
+                  "lang":"C#",
+                  "label":"C#",
+                  "source":"\npublic static async Task ConsultaSolicitacao(string codigoSolicitacao)\n{\n   try\n   {\n      if (BearerToken == null)\n         throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n      using (var client = new HttpClient(new HttpClientHandler { \n\t  AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n      {\n         client.BaseAddress = new Uri(UrlBase);\n         client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer\" + BearerToken);\n         string resposta = await client.GetStringAsync(\"api/v1/tipificacao/\" \n         + codigoSolicitacao);\n         dynamic retorno = JsonConvert.DeserializeObject(resposta);\n         return retorno;\n      }\n   }\n   catch (Exception e)\n   {\n      //Sua excessão\n   }\n   return null;\n}"
+               },
+               {
+                  "lang":"PHP",
+                  "label":"PHP",
+                  "source":"\n$curl = curl_init();\n\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+               },
+               {
+                  "lang":"NODE",
+                  "label":"NODE",
+                  "source":"\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+               }
+            ]
+         }
+      },
    },
    "definitions":{
       "RetornoSolicitacaoTipificacao":{
@@ -1544,17 +1607,22 @@
       {
          "name":"Autenticacao",
          "description":"Nessa seção, você encontrará informações sobre como se autenticar na aplicação",
-         "x-displayName":"Tipificação e VAR - Login"
+         "x-displayName":"Atomics - Login"
       },
       {
          "name":"Tipificacao",
          "description":"Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
          "x-displayName":"Tipificação"
       },
-      {
-         "name":"AntiFraude",
-         "description":"Nessa seção, você encontrará informações sobre como enviar solicitações e consultar as mesmas enviadas ao VAR (Validação Automática de Risco)",
-         "x-displayName":"VAR"
+	  {
+         "name":"Atomics Sincrono",
+         "description":"Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+         "x-displayName":"Atomics Sincrono"
+      },
+	  {
+         "name":"Atomics Assincrono",
+         "description":"Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+         "x-displayName":"Atomics Assincrono"
       },
       {
          "name":"DadosEstruturados",
@@ -1587,8 +1655,10 @@
          "tags":[
             "Autenticacao",
             "AntiFraude",
-            "Operacional",
             "Tipificacao",
+			"Atomics Sincrono",
+			"Atomics Assincrono",
+			"Operacional",
             "InclusaoAssincrona"
          ]
       },
