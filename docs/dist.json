@@ -318,7 +318,7 @@
 					}
 				}
 			}
-		},		
+		},
 		"/api/v1/tipificacao/{codigo}": {
 			"get": {
 				"tags": [
@@ -379,7 +379,7 @@
 					}
 				]
 			}
-		},		
+		},
 		"/api/v1/tipificacao/iniciarprocessamento/{codigo}": {
 			"post": {
 				"tags": [
@@ -424,7 +424,7 @@
 					}
 				}
 			}
-		}					
+		},
 		"/api/v1/tipificacao/incluirarquivos/{codigo}": {
 			"post": {
 				"tags": [
@@ -834,9 +834,7 @@
 					}
 				}
 			}
-		},
-		
-
+		}
 	},
 	"definitions": {
 		"RetornoSolicitacaoTipificacao": {
@@ -1500,8 +1498,8 @@
 				"Atomics Assincrono",
 				"Atomics Sincrono",
 				"Atomics IDOnline",
-				"InclusaoAssincrona"
-				"Operacional"		
+				"InclusaoAssincrona",
+				"Operacional"
 			]
 		},
 		{
