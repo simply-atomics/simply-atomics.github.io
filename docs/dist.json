@@ -133,95 +133,8 @@
                }
             ]
          }
-      },
-      "/api/v1/antifraude/{codigo}":{
-         "get":{
-            "tags":[
-               "AntiFraude"
-            ],
-            "summary":"VAR - Consulta",
-            "description":"Utilize esse procedimento para consultar o retorno dos documentos enviados para análise\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a análise de risco deles",
-            "operationId":"AntiFraude_Get",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"codigo",
-                  "in":"path",
-                  "description":"Código da solicitação gerado no momento da criação.",
-                  "required":true,
-                  "type":"integer",
-                  "format":"int64"
-               }
-            ],
-            "responses":{
-               "401":{
-                  "description":"Usuário não logado, ou não possui acesso à solicitação informada."
-               },
-               "404":{
-                  "description":"Solicitação não encontrada."
-               },
-               "200":{
-                  "description":"Solicitação encontrada.",
-                  "schema":{
-                     "$ref":"#/definitions/RetornoSolicitacaoTipificacao"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-      "/api/v1/antifraude":{
-         "post":{
-            "tags":[
-               "AntiFraude"
-            ],
-            "summary":"VAR - Inclusão",
-            "description":"Utilize esse procedimento para enviar os documentos que onde serão feitas as análises de risco\r\n<br /><br />\r\nEsse endpoint irá realizar a validação de risco (fraudes) na frente e no verso enviados",
-            "operationId":"AntiFraude_Post",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/AntiFraude"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-      "/api/v1/operacional/usuario":{
+      },     
+	  "/api/v1/operacional/usuario":{
          "post":{
             "tags":[
                "Operacional"
@@ -314,7 +227,7 @@
       "/api/v1/tipificacao/retornararquivo/{codigo}":{
          "get":{
             "tags":[
-               "Tipificacao"
+               "Atomics Assincrono"
             ],
             "summary":"Download de Arquivos - Bytes",
             "description":"Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
@@ -376,7 +289,7 @@
       "/api/v1/tipificacao/retornarArquivoBase64/{codigo}":{
          "get":{
             "tags":[
-               "Tipificacao"
+               "Atomics Assincrono"
             ],
             "summary":"Download de Arquivos - Base64",
             "description":"Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
@@ -944,7 +857,6 @@
             }
          }
       },
-
    },
    "definitions":{
       "RetornoSolicitacaoTipificacao":{
@@ -1547,11 +1459,6 @@
          "description":"Nessa seção, você encontrará informações sobre como se autenticar na aplicação",
          "x-displayName":"Atomics - Login"
       },
-      {
-         "name":"Tipificacao",
-         "description":"Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
-         "x-displayName":"Tipificação"
-      },
 	  {
          "name":"Atomics Sincrono",
          "description":"Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
@@ -1584,7 +1491,7 @@
       },
       {
          "name":"Documentos Globais",
-         "description":"Está é a lista de documentos globais retornados pelo Atomics \n\n<table style=\"width:auto; height: 590px;\">\r\n <thead>\r\n<tr>\r\n <td style=\"width:121px; text-align: center;\"><strong>Código Documento</strong></td>\r\n<td style=\"width:413px; text-align: center;\"><strong>Descrição</strong></td>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td>-1</td>\r\n<td style=\"text-align: center;\">Não Identificado</td>\r\n</tr>\r\n<tr>\r\n<td>4</td>\r\n<td style=\"text-align: center;\">Identificação Pessoal</td>\r\n</tr>\r\n<tr>\r\n<td>5</td>\r\n<td style=\"text-align: center;\">Comprovante Residência</td>\r\n</tr>\r\n<tr>\r\n<td>7</td>\r\n<td style=\"text-align: center;\">Extrato de Pagamento</td>\r\n</tr>\r\n<tr>\r\n<td>8</td>\r\n<td style=\"text-align: center;\">CPF</td>\r\n</tr>\r\n<tr>\r\n<td>9</td>\r\n<td style=\"text-align: center;\">Duplicata</td>\r\n</tr>\r\n<tr>\r\n<td>10</td>\r\n<td style=\"text-align: center;\">Formulário Padrão</td>\r\n</tr>\r\n<tr>\r\n<td>11</td>\r\n<td style=\"text-align: center;\">Driver License</td>\r\n</tr>\r\n<tr>\r\n<td>12</td>\r\n<td style=\"text-align: center;\">Social Security Number</td>\r\n</tr>\r\n<tr>\r\n<td>14</td>\r\n<td style=\"text-align: center;\">Extrato Bancário</td>\r\n</tr>\r\n<tr>\r\n<td>6</td>\r\n<td style=\"text-align: center;\">Declaração Residência</td>\r\n</tr>\r\n<tr>\r\n<td>44</td>\r\n<td style=\"text-align: center;\">Carta de Concessão INSS</td>\r\n</tr>\r\n<tr>\r\n<td>100</td>\r\n<td style=\"text-align: center;\">Boleto Bancário</td>\r\n</tr>\r\n<tr>\r\n<td>101</td>\r\n<td style=\"text-align: center;\">Documento com Foto</td>\r\n</tr>\r\n<tr>\r\n<td>102</td>\r\n<td style=\"text-align: center;\">CRLV</td>\r\n</tr>\r\n<tr>\r\n<td>103</td>\r\n<td style=\"text-align: center;\">RG/DNI/CIN Frente </td>\r\n</tr>\r\n<tr>\r\n<td>104</td>\r\n<td style=\"text-align: center;\">RG/DNI/CIN Verso</td>\r\n</tr>\r\n<tr>\r\n<td>105</td>\r\n<td style=\"text-align: center;\">CNH</td>\r\n</tr>\r\n<tr>\r\n<td>106</td>\r\n<td style=\"text-align: center;\">Selfie</td>\r\n</tr>\r\n<tr>\r\n<td>107</td>\r\n<td style=\"text-align: center;\">Documento Classe</td>\r\n</tr>\r\n<tr>\r\n<td>108</td>\r\n<td style=\"text-align: center;\">CREA</td>\r\n</tr>\r\n<tr>\r\n<td>109</td>\r\n<td style=\"text-align: center;\">CRO</td>\r\n</tr>\r\n<tr>\r\n<td>110</td>\r\n<td style=\"text-align: center;\">CRM</td>\r\n</tr>\r\n<tr>\r\n<td>111</td>\r\n<td style=\"text-align: center;\">OAB</td>\r\n</tr>\r\n<tr>\r\n<td>112</td>\r\n<td style=\"text-align: center;\">Extrato FGTS</td>\r\n</tr>\r\n<tr>\r\n<td>113</td>\r\n<td style=\"text-align: center;\">Certidao de Nascimento</td>\r\n</tr>\r\n<tr>\r\n<td>114</td>\r\n<td style=\"text-align: center;\">Carteira Exercito Verso</td>\r\n</tr>\r\n<tr>\r\n<td>115</td>\r\n<td style=\"text-align: center;\">Carteira Exercito Frente</td>\r\n</tr>\r\n<tr>\r\n<td>116</td>\r\n<td style=\"text-align: center;\">Arquivo de Áudio</td>\r\n</tr>\r\n<tr>\r\n<td>117</td>\r\n<td style=\"text-align: center;\">Certidão de Casamento</td>\r\n</tr>\r\n<tr>\r\n<td>118</td>\r\n<td style=\"text-align: center;\">Contrato Social</td>\r\n</tr>\r\n<tr>\r\n<td>119</td>\r\n<td style=\"text-align: center;\">Cartão CNPJ</td>\r\n</tr>\r\n<tr>\r\n<td>120</td>\r\n<td style=\"text-align: center;\">Certidão de Óbito</td>\r\n</tr>\r\n<tr>\r\n<td>0</td>\r\n<td style=\"text-align: center;\">Pagina em Branco</td>\r\n</tr>\r\n<tr>\r\n<td>121</td>\r\n<td style=\"text-align: center;\">CNH Verso</td>\r\n</tr>\r\n<tr>\r\n<td>122</td>\r\n<td style=\"text-align: center;\">Certificado Digital</td>\r\n</tr>\r\n<tr>\r\n<td>300</td>\r\n<td style=\"text-align: center;\">Documento Classe Verso</td>\r\n</tr>\r\n<tr>\r\n<td>301</td>\r\n<td style=\"text-align: center;\">CREA Verso</td>\r\n</tr>\r\n<tr>\r\n<td>302</td>\r\n<td style=\"text-align: center;\">CRO Verso</td>\r\n</tr>\r\n<tr>\r\n<td>303</td>\r\n<td style=\"text-align: center;\">CRM Verso</td>\r\n</tr>\r\n<tr>\r\n<td>304</td>\r\n<td style=\"text-align: center;\">OAB Verso</td>\r\n</tr>\r\n<tr>\r\n<td>305</td>\r\n<td style=\"text-align: center;\">CFE</td>\r\n</tr>\r\n<tr>\r\n<td>306</td>\r\n<td style=\"text-align: center;\">CFE Verso</td>\r\n</tr>\r\n<tr>\r\n<td>307</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda</td>\r\n</tr>\r\n<tr>\r\n<td>308</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda (Recibo </td>\r\n</tr>\r\n<tr>\r\n<td>309</td>\r\n<td style=\"text-align: center;\">CRC</td>\r\n</tr>\r\n<tr>\r\n<td>310</td>\r\n<td style=\"text-align: center;\">CRC Verso</td>\r\n</tr>\r\n<tr>\r\n<td>311</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda (Resumo)</td>\r\n</tr>\r\n<tr>\r\n<td>312</td>\r\n<td style=\"text-align: center;\">Comprovante de Pagamento</td>\r\n</tr>\r\n<tr>\r\n<td>315</td>\r\n<td style=\"text-align: center;\">Cartão Assinatura Digital</td>\r\n</tr>\r\n<tr>\r\n<td>145</td>\r\n<td style=\"text-align: center;\">Passaporte Brasileiro</td>\r\n</tr>\r\n<tr>\r\n<td>146</td>\r\n<td style=\"text-align: center;\">Identidade Polícia Militar</td>\r\n</tr>\r\n<tr>\r\n<td>319</td>\r\n<td style=\"text-align: center;\">Identidade Polícia Militar Verso</td>\r\n</tr>\r\n<tr>\r\n<td>127</td>\r\n<td style=\"text-align: center;\">RNE</td>\r\n</tr>\r\n<tr>\r\n<td>347</td>\r\n<td style=\"text-align: center;\">RNE Verso</td>\r\n</tr>\r\n<tr>\r\n<td>348</td>\r\n<td style=\"text-align: center;\">Cheque Frente</td>\r\n</tr>\r\n<tr>\r\n<td>995</td>\r\n<td style=\"text-align: center;\">DPVAT</td>\r\n</tr>\r\n<tr>\r\n<td>997</td>\r\n<td style=\"text-align: center;\">CRV</td>\r\n</tr>\r\n<tr>\r\n<td>349</td>\r\n<td style=\"text-align: center;\">Hodômetro</td>\r\n</tr>\r\n<tr>\r\n<td>980</td>\r\n<td style=\"text-align: center;\">DUT</td>\r\n</tr>\r\n<tr>\r\n<td>1114</td>\r\n<td style=\"text-align: center;\">Carteira Marinha Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1115</td>\r\n<td style=\"text-align: center;\">Carteira Marinha Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1116</td>\r\n<td style=\"text-align: center;\">Carteira Aeronautica Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1117</td>\r\n<td style=\"text-align: center;\">Carteira Aeronautica Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1118</td>\r\n<td style=\"text-align: center;\">RNM</td>\r\n</tr>\r\n<tr>\r\n<td>1119</td>\r\n<td style=\"text-align: center;\">RNM Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1120</td>\r\n<td style=\"text-align: center;\">Coren</td>\r\n</tr>\r\n<tr>\r\n<td>1125</td>\r\n<td style=\"text-align: center;\">IPTU</td>\r\n</tr>\r\n<tr>\r\n<td>1130</td>\r\n<td style=\"text-align: center;\">CTPS Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1135</td>\r\n<td style=\"text-align: center;\">CTPS Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1800</td>\r\n<td style=\"text-align: center;\">Declaração de Débitos e Créditos (DCTF)</td>\r\n</tr>\r\n<tr>\r\n<td>1900</td>\r\n<td style=\"text-align: center;\">Declaração Imposto de Renda ( DAS )</td>\r\n</tr>\r\n<tr>\r\n<td>2100</td>\r\n<td style=\"text-align: center;\">Painel Corretor</td>\r\n</tr>\r\n<tr>\r\n<td>3150</td>\r\n<td style=\"text-align: center;\">Cartão Assinatura</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n\n\n"
+         "description":"Está é a lista de documentos globais retornados pelo Atomics \n\n<table style=\"width:auto; height: 590px;\">\r\n <thead>\r\n<tr>\r\n <td style=\"width:121px; text-align: center;\"><strong>Código Documento</strong></td>\r\n<td style=\"width:413px; text-align: center;\"><strong>Descrição</strong></td>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td>-1</td>\r\n<td style=\"text-align: center;\">Não Identificado</td>\r\n</tr>\r\n<tr>\r\n<td>4</td>\r\n<td style=\"text-align: center;\">Identificação Pessoal</td>\r\n</tr>\r\n<tr>\r\n<td>5</td>\r\n<td style=\"text-align: center;\">Comprovante Residência</td>\r\n</tr>\r\n<tr>\r\n<td>7</td>\r\n<td style=\"text-align: center;\">Extrato de Pagamento</td>\r\n</tr>\r\n<tr>\r\n<td>8</td>\r\n<td style=\"text-align: center;\">CPF</td>\r\n</tr>\r\n<tr>\r\n<td>9</td>\r\n<td style=\"text-align: center;\">Duplicata</td>\r\n</tr>\r\n<tr>\r\n<td>10</td>\r\n<td style=\"text-align: center;\">Formulário Padrão</td>\r\n</tr>\r\n<tr>\r\n<td>11</td>\r\n<td style=\"text-align: center;\">Driver License</td>\r\n</tr>\r\n<tr>\r\n<td>12</td>\r\n<td style=\"text-align: center;\">Social Security Number</td>\r\n</tr>\r\n<tr>\r\n<td>14</td>\r\n<td style=\"text-align: center;\">Extrato Bancário</td>\r\n</tr>\r\n<tr>\r\n<td>6</td>\r\n<td style=\"text-align: center;\">Declaração Residência</td>\r\n</tr>\r\n<tr>\r\n<td>44</td>\r\n<td style=\"text-align: center;\">Carta de Concessão INSS</td>\r\n</tr>\r\n<tr>\r\n<td>100</td>\r\n<td style=\"text-align: center;\">Boleto Bancário</td>\r\n</tr>\r\n<tr>\r\n<td>101</td>\r\n<td style=\"text-align: center;\">Documento com Foto</td>\r\n</tr>\r\n<tr>\r\n<td>102</td>\r\n<td style=\"text-align: center;\">CRLV</td>\r\n</tr>\r\n<tr>\r\n<td>103</td>\r\n<td style=\"text-align: center;\">RG/DNI/CIN Frente </td>\r\n</tr>\r\n<tr>\r\n<td>104</td>\r\n<td style=\"text-align: center;\">RG/DNI/CIN Verso</td>\r\n</tr>\r\n<tr>\r\n<td>105</td>\r\n<td style=\"text-align: center;\">CNH</td>\r\n</tr>\r\n<tr>\r\n<td>106</td>\r\n<td style=\"text-align: center;\">Selfie</td>\r\n</tr>\r\n<tr>\r\n<td>107</td>\r\n<td style=\"text-align: center;\">Documento Classe</td>\r\n</tr>\r\n<tr>\r\n<td>108</td>\r\n<td style=\"text-align: center;\">CREA</td>\r\n</tr>\r\n<tr>\r\n<td>109</td>\r\n<td style=\"text-align: center;\">CRO</td>\r\n</tr>\r\n<tr>\r\n<td>110</td>\r\n<td style=\"text-align: center;\">CRM</td>\r\n</tr>\r\n<tr>\r\n<td>111</td>\r\n<td style=\"text-align: center;\">OAB</td>\r\n</tr>\r\n<tr>\r\n<td>112</td>\r\n<td style=\"text-align: center;\">Extrato FGTS</td>\r\n</tr>\r\n<tr>\r\n<td>113</td>\r\n<td style=\"text-align: center;\">Certidao de Nascimento</td>\r\n</tr>\r\n<tr>\r\n<td>114</td>\r\n<td style=\"text-align: center;\">Carteira Exercito Verso</td>\r\n</tr>\r\n<tr>\r\n<td>115</td>\r\n<td style=\"text-align: center;\">Carteira Exercito Frente</td>\r\n</tr>\r\n<tr>\r\n<td>116</td>\r\n<td style=\"text-align: center;\">Arquivo de Áudio</td>\r\n</tr>\r\n<tr>\r\n<td>117</td>\r\n<td style=\"text-align: center;\">Certidão de Casamento</td>\r\n</tr>\r\n<tr>\r\n<td>118</td>\r\n<td style=\"text-align: center;\">Contrato Social</td>\r\n</tr>\r\n<tr>\r\n<td>119</td>\r\n<td style=\"text-align: center;\">Cartão CNPJ</td>\r\n</tr>\r\n<tr>\r\n<td>120</td>\r\n<td style=\"text-align: center;\">Certidão de Óbito</td>\r\n</tr>\r\n<tr>\r\n<td>0</td>\r\n<td style=\"text-align: center;\">Pagina em Branco</td>\r\n</tr>\r\n<tr>\r\n<td>121</td>\r\n<td style=\"text-align: center;\">CNH Verso</td>\r\n</tr>\r\n<tr>\r\n<td>122</td>\r\n<td style=\"text-align: center;\">Certificado Digital</td>\r\n</tr>\r\n<tr>\r\n<td>300</td>\r\n<td style=\"text-align: center;\">Documento Classe Verso</td>\r\n</tr>\r\n<tr>\r\n<td>301</td>\r\n<td style=\"text-align: center;\">CREA Verso</td>\r\n</tr>\r\n<tr>\r\n<td>302</td>\r\n<td style=\"text-align: center;\">CRO Verso</td>\r\n</tr>\r\n<tr>\r\n<td>303</td>\r\n<td style=\"text-align: center;\">CRM Verso</td>\r\n</tr>\r\n<tr>\r\n<td>304</td>\r\n<td style=\"text-align: center;\">OAB Verso</td>\r\n</tr>\r\n<tr>\r\n<td>305</td>\r\n<td style=\"text-align: center;\">CFE</td>\r\n</tr>\r\n<tr>\r\n<td>306</td>\r\n<td style=\"text-align: center;\">CFE Verso</td>\r\n</tr>\r\n<tr>\r\n<td>307</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda</td>\r\n</tr>\r\n<tr>\r\n<td>308</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda (Recibo </td>\r\n</tr>\r\n<tr>\r\n<td>309</td>\r\n<td style=\"text-align: center;\">CRC</td>\r\n</tr>\r\n<tr>\r\n<td>310</td>\r\n<td style=\"text-align: center;\">CRC Verso</td>\r\n</tr>\r\n<tr>\r\n<td>311</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda (Resumo)</td>\r\n</tr>\r\n<tr>\r\n<td>312</td>\r\n<td style=\"text-align: center;\">Comprovante de Pagamento</td>\r\n</tr>\r\n<tr>\r\n<td>315</td>\r\n<td style=\"text-align: center;\">Cartão Assinatura Digital</td>\r\n</tr>\r\n<tr>\r\n<td>145</td>\r\n<td style=\"text-align: center;\">Passaporte Brasileiro</td>\r\n</tr>\r\n<tr>\r\n<td>146</td>\r\n<td style=\"text-align: center;\">Identidade Polícia Militar</td>\r\n</tr>\r\n<tr>\r\n<td>319</td>\r\n<td style=\"text-align: center;\">Identidade Polícia Militar Verso</td>\r\n</tr>\r\n<tr>\r\n<td>127</td>\r\n<td style=\"text-align: center;\">RNE</td>\r\n</tr>\r\n<tr>\r\n<td>347</td>\r\n<td style=\"text-align: center;\">RNE Verso</td>\r\n</tr>\r\n<tr>\r\n<td>348</td>\r\n<td style=\"text-align: center;\">Cheque Frente</td>\r\n</tr>\r\n<tr>\r\n<td>995</td>\r\n<td style=\"text-align: center;\">DPVAT</td>\r\n</tr>\r\n<tr>\r\n<td>997</td>\r\n<td style=\"text-align: center;\">CRV</td>\r\n</tr>\r\n<tr>\r\n<td>349</td>\r\n<td style=\"text-align: center;\">Hodômetro</td>\r\n</tr>\r\n<tr>\r\n<td>980</td>\r\n<td style=\"text-align: center;\">DUT</td>\r\n</tr>\r\n<tr>\r\n<td>1114</td>\r\n<td style=\"text-align: center;\">Carteira Marinha Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1115</td>\r\n<td style=\"text-align: center;\">Carteira Marinha Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1116</td>\r\n<td style=\"text-align: center;\">Carteira Aeronautica Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1117</td>\r\n<td style=\"text-align: center;\">Carteira Aeronautica Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1118</td>\r\n<td style=\"text-align: center;\">RNM</td>\r\n</tr>\r\n<tr>\r\n<td>1119</td>\r\n<td style=\"text-align: center;\">RNM Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1120</td>\r\n<td style=\"text-align: center;\">Coren</td>\r\n</tr>\r\n<tr>\r\n<td>1125</td>\r\n<td style=\"text-align: center;\">IPTU</td>\r\n</tr>\r\n<tr>\r\n<td>1130</td>\r\n<td style=\"text-align: center;\">CTPS Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1135</td>\r\n<td style=\"text-align: center;\">CTPS Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1800</td>\r\n<td style=\"text-align: center;\">Declaração de Débitos e Créditos (DCTF)</td>\r\n</tr>\r\n<tr>\r\n<td>1900</td>\r\n<td style=\"text-align: center;\">Declaração Imposto de Renda ( DAS )</td>\r\n</tr>\r\n<tr>\r\n<td>2100</td>\r\n<td style=\"text-align: center;\">Painel Corretor</td>\r\n</tr>\r\n<tr>\r\n<td>3150</td>\r\n<td style=\"text-align: center;\">Cartão Assinatura</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n\n\n",
       },
       {
          "name":"InclusaoAssincrona",
@@ -1597,8 +1504,6 @@
          "name":"Rotas da aplicação",
          "tags":[
             "Autenticacao",
-            "AntiFraude",
-            "Tipificacao",
 			"Atomics Sincrono",
 			"Atomics Assincrono",
 			"Atomics IDOnline",
