@@ -943,7 +943,7 @@
                }
             }
          }
-      }
+      },
       "/api/v1/tipificacao/{codigo}":{
          "get":{
             "tags":[
