@@ -1448,7 +1448,7 @@
 		{
 			"name": "Autenticacao",
 			"description": "Nessa seção, você encontrará informações sobre como se autenticar na aplicação",
-			"x-displayName": "Atomics - Login"
+			"x-displayName": "Atomics Login"
 		},
 		{
 			"name": "AtomicsAssincrono",
