@@ -221,7 +221,7 @@
 		"/api/v1/tipificacao": {
 			"post": {
 				"tags": [
-					"Atomics Assincrono"
+					"AtomicsAssincrono"
 				],
 				"summary": "Inclusão de Solicitação",
 				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />",
@@ -277,7 +277,7 @@
 		"/api/v1/tipificacaoJson": {
 			"post": {
 				"tags": [
-					"Atomics Assincrono"
+					"AtomicsAssincrono"
 				],
 				"summary": "Inclusão de Solicitação Json",
 				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
@@ -322,7 +322,7 @@
 		"/api/v1/tipificacao/{codigo}": {
 			"get": {
 				"tags": [
-					"Atomics Assincrono"
+					"AtomicsAssincrono"
 				],
 				"summary": "Consulta de Solicitação",
 				"description": "Utilize esse procedimento para consultar o retorno dos documentos enviados para tipificação.\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a eles (tipo do documento, \r\nOCR, validação e extração de dados, antifraude, validação de assinatura, dentre outros).",
