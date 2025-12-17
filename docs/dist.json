@@ -279,7 +279,7 @@
 				"tags": [
 					"Atomics Assincrono"
 				],
-				"summary": "Inclusão de Solicitacao Json",
+				"summary": "Inclusão de Solicitação Json",
 				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
 				"operationId": "Tipificacao_PostJson",
 				"consumes": [
@@ -380,55 +380,10 @@
 				]
 			}
 		},
-		"/api/v1/tipificacao/iniciarprocessamento/{codigo}": {
-			"post": {
-				"tags": [
-					"Atomics Assincrono"
-				],
-				"summary": "Iniciar processamento",
-				"description": "Esse endpoint é reponsável por iniciar o processamento de chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".",
-				"operationId": "Tipificacao_IniciarProcessamento",
-				"consumes": [],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "codigo",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "model",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/IniciarProcesso"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Sucesso na inclusão da solicitação.",
-						"schema": {
-							"format": "int64",
-							"type": "integer"
-						}
-					},
-					"500": {
-						"description": "Ocorreu um erro na inclusão da solicitação."
-					}
-				}
-			}
-		},
 		"/api/v1/tipificacao/incluirarquivos/{codigo}": {
 			"post": {
 				"tags": [
-					"Atomics Assincrono"
+					"InclusaoAssincrona"
 				],
 				"summary": "Inclusão de documento - Bytes",
 				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".\r\nSerá necessário o envio de apenas um documento por vez",
@@ -473,7 +428,7 @@
 		"/api/v1/tipificacao/incluirarquivosBase64": {
 			"post": {
 				"tags": [
-					"Atomics Assincrono"
+					"InclusaoAssincrona"
 				],
 				"summary": "Inclusão de documento - Base64",
 				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\". Será necessário o envio de apenas um documento por vez",
@@ -515,10 +470,55 @@
 				}
 			}
 		},
+		"/api/v1/tipificacao/iniciarprocessamento/{codigo}": {
+			"post": {
+				"tags": [
+					"InclusaoAssincrona"
+				],
+				"summary": "Iniciar processamento",
+				"description": "Esse endpoint é reponsável por iniciar o processamento de chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".",
+				"operationId": "Tipificacao_IniciarProcessamento",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/IniciarProcesso"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},
 		"/api/v1/tipificacao/retornararquivo/{codigo}": {
 			"get": {
 				"tags": [
-					"Atomics Assincrono"
+					"AtomicsAssincrono"
 				],
 				"summary": "Download de Arquivos - Bytes",
 				"description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
@@ -578,7 +578,7 @@
 		"/api/v1/tipificacao/retornarArquivoBase64/{codigo}": {
 			"get": {
 				"tags": [
-					"Atomics Assincrono"
+					"AtomicsAssincrono"
 				],
 				"summary": "Download de Arquivos - Base64",
 				"description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
@@ -638,7 +638,7 @@
 		"/api/v1/tipificacaoSync": {
 			"post": {
 				"tags": [
-					"Atomics Sincrono"
+					"AtomicsSincrono"
 				],
 				"summary": "Tipificação Síncrona",
 				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar apenas documentos de RG e CNH e deve ser enviado 1 documento por solicitação.",
@@ -693,7 +693,7 @@
 		"/api/v1/tipificacaoSyncJson": {
 			"post": {
 				"tags": [
-					"Atomics Sincrono"
+					"AtomicsSincrono"
 				],
 				"summary": "Tipificação Síncrona Json",
 				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar apenas documentos de RG e CNH e deve ser enviado 1 documento por solicitação.",
@@ -746,7 +746,7 @@
 		"/api/v1/tipificacaoExtracaoSync": {
 			"post": {
 				"tags": [
-					"Atomics IDOnline"
+					"AtomicsIDOnline"
 				],
 				"summary": "Tipificação e Extração Síncrona (IDOnline)",
 				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN** - Tipificação e Extração<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
@@ -785,7 +785,7 @@
 		"/api/v1/tipificacaoExtracaoSyncJson": {
 			"post": {
 				"tags": [
-					"Atomics IDOnline"
+					"AtomicsIDOnline"
 				],
 				"summary": "Tipificação e Extração Síncrona Json (IDOnline)",
 				"description": "Utilize esse procedimento para enviar documentos ao Atomics no formato Json.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN** - Tipificação e Extração\r\n<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
@@ -1451,17 +1451,17 @@
 			"x-displayName": "Atomics - Login"
 		},
 		{
-			"name": "Atomics Assincrono",
+			"name": "AtomicsAssincrono",
 			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
-			"x-displayName": "Atomics Assincrono"
+			"x-displayName": "Atomics Assíncrono"
 		},
 		{
-			"name": "Atomics Sincrono",
+			"name": "AtomicsSincrono",
 			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
-			"x-displayName": "Atomics Sincrono"
+			"x-displayName": "Atomics Síncrono"
 		},
 		{
-			"name": "Atomics IDOnline",
+			"name": "AtomicsIDOnline",
 			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
 			"x-displayName": "Atomics IDOnline"
 		},
