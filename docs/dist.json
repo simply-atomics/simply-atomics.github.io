@@ -1495,9 +1495,9 @@
 			"name": "Rotas da aplicação",
 			"tags": [
 				"Autenticacao",
-				"Atomics Assincrono",
-				"Atomics Sincrono",
-				"Atomics IDOnline",
+				"AtomicsAssincrono",
+				"AtomicsSincrono",
+				"AtomicsIDOnline",
 				"InclusaoAssincrona",
 				"Operacional"
 			]
