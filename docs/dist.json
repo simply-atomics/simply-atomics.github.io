@@ -218,6 +218,107 @@
 				}
 			}
 		},
+		"/api/v1/tipificacao": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão de Solicitação",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />",
+				"operationId": "Tipificacao_Post",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostTipificacao"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {\ntry\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curlPost = curl_init();\n\n$arqs = array();\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\"));\n\ncurl_setopt_array($curlPost, array(\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0],\n\t\t'arquivo[1]' => $arqs[1]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/tipificacaoJson": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão de Solicitacao Json",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
+				"operationId": "Tipificacao_PostJson",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostJSon"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},		
 		"/api/v1/tipificacao/{codigo}": {
 			"get": {
 				"tags": [
@@ -278,15 +379,15 @@
 					}
 				]
 			}
-		},
-		"/api/v1/tipificacao": {
+		},		
+		"/api/v1/tipificacao/iniciarprocessamento/{codigo}": {
 			"post": {
 				"tags": [
 					"Atomics Assincrono"
 				],
-				"summary": "Inclusão",
-				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />",
-				"operationId": "Tipificacao_Post",
+				"summary": "Iniciar processamento",
+				"description": "Esse endpoint é reponsável por iniciar o processamento de chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".",
+				"operationId": "Tipificacao_IniciarProcessamento",
 				"consumes": [],
 				"produces": [
 					"application/json",
@@ -296,11 +397,17 @@
 				],
 				"parameters": [
 					{
+						"name": "codigo",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
 						"name": "model",
 						"in": "body",
 						"required": true,
 						"schema": {
-							"$ref": "#/definitions/PostTipificacao"
+							"$ref": "#/definitions/IniciarProcesso"
 						}
 					}
 				],
@@ -315,24 +422,97 @@
 					"500": {
 						"description": "Ocorreu um erro na inclusão da solicitação."
 					}
-				},
-				"x-codeSamples": [
+				}
+			}
+		}					
+		"/api/v1/tipificacao/incluirarquivos/{codigo}": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão de documento - Bytes",
+				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".\r\nSerá necessário o envio de apenas um documento por vez",
+				"operationId": "Tipificacao_IncluirArquivos",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
 					{
-						"lang": "C#",
-						"label": "C#",
-						"source": "public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {\ntry\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
+						"name": "codigo",
+						"in": "path",
+						"required": true,
+						"type": "string"
 					},
 					{
-						"lang": "PHP",
-						"label": "PHP",
-						"source": "\n$curlPost = curl_init();\n\n$arqs = array();\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\"));\n\ncurl_setopt_array($curlPost, array(\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0],\n\t\t'arquivo[1]' => $arqs[1]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
-					},
-					{
-						"lang": "NODE",
-						"label": "NODE",
-						"source": "\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/IncluirArquivo"
+						}
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},
+		"/api/v1/tipificacao/incluirarquivosBase64": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão de documento - Base64",
+				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\". Será necessário o envio de apenas um documento por vez",
+				"operationId": "Tipificacao_IncluirArquivosBase64",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostArquivoJson"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
 			}
 		},
 		"/api/v1/tipificacao/retornararquivo/{codigo}": {
@@ -453,51 +633,6 @@
 						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
 					}
 				]
-			}
-		},
-		"/api/v1/tipificacaoJson": {
-			"post": {
-				"tags": [
-					"Atomics Assincrono"
-				],
-				"summary": "Inclusão Json",
-				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
-				"operationId": "Tipificacao_PostJson",
-				"consumes": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml",
-					"application/x-www-form-urlencoded"
-				],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "model",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/PostJSon"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "",
-						"schema": {
-							"format": "int64",
-							"type": "integer"
-						}
-					},
-					"500": {
-						"description": "Ocorreu um erro na inclusão da solicitação."
-					}
-				}
 			}
 		},
 		"/api/v1/tipificacaoSync": {
@@ -700,141 +835,8 @@
 				}
 			}
 		},
-		"/api/v1/tipificacao/incluirarquivos/{codigo}": {
-			"post": {
-				"tags": [
-					"Atomics Assincrono"
-				],
-				"summary": "Inclusão de documento - Bytes",
-				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".\r\nSerá necessário o envio de apenas um documento por vez",
-				"operationId": "Tipificacao_IncluirArquivos",
-				"consumes": [],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "codigo",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "model",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/IncluirArquivo"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Sucesso na inclusão da solicitação.",
-						"schema": {
-							"format": "int64",
-							"type": "integer"
-						}
-					},
-					"500": {
-						"description": "Ocorreu um erro na inclusão da solicitação."
-					}
-				}
-			}
-		},
-		"/api/v1/tipificacao/incluirarquivosBase64": {
-			"post": {
-				"tags": [
-					"Atomics Assincrono"
-				],
-				"summary": "Inclusão de documento - Base64",
-				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\". Será necessário o envio de apenas um documento por vez",
-				"operationId": "Tipificacao_IncluirArquivosBase64",
-				"consumes": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml",
-					"application/x-www-form-urlencoded"
-				],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "model",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/PostArquivoJson"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Sucesso na inclusão da solicitação.",
-						"schema": {
-							"format": "int64",
-							"type": "integer"
-						}
-					},
-					"500": {
-						"description": "Ocorreu um erro na inclusão da solicitação."
-					}
-				}
-			}
-		},
-		"/api/v1/tipificacao/iniciarprocessamento/{codigo}": {
-			"post": {
-				"tags": [
-					"Atomics Assincrono"
-				],
-				"summary": "Iniciar processamento",
-				"description": "Esse endpoint é reponsável por iniciar o processamento de chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".",
-				"operationId": "Tipificacao_IniciarProcessamento",
-				"consumes": [],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "codigo",
-						"in": "path",
-						"required": true,
-						"type": "string"
-					},
-					{
-						"name": "model",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/IniciarProcesso"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Sucesso na inclusão da solicitação.",
-						"schema": {
-							"format": "int64",
-							"type": "integer"
-						}
-					},
-					"500": {
-						"description": "Ocorreu um erro na inclusão da solicitação."
-					}
-				}
-			}
-		}
+		
+
 	},
 	"definitions": {
 		"RetornoSolicitacaoTipificacao": {
@@ -1460,7 +1462,6 @@
 			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
 			"x-displayName": "Atomics Sincrono"
 		},
-
 		{
 			"name": "Atomics IDOnline",
 			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
@@ -1496,11 +1497,11 @@
 			"name": "Rotas da aplicação",
 			"tags": [
 				"Autenticacao",
-				"Atomics Sincrono",
 				"Atomics Assincrono",
+				"Atomics Sincrono",
 				"Atomics IDOnline",
-				"Operacional",
 				"InclusaoAssincrona"
+				"Operacional"		
 			]
 		},
 		{
