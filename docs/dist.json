@@ -218,6 +218,123 @@
 				}
 			}
 		},
+		"/api/v1/tipificacao/{codigo}": {
+			"get": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Consulta de Solicitação",
+				"description": "Utilize esse procedimento para consultar o retorno dos documentos enviados para tipificação.\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a eles (tipo do documento, \r\nOCR, validação e extração de dados, antifraude, validação de assinatura, dentre outros).",
+				"operationId": "Tipificacao_Get",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"description": "Código da solicitação gerado no momento da criação.",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					}
+				],
+				"responses": {
+					"401": {
+						"description": "Usuário não logado, ou não possui acesso à solicitação informada."
+					},
+					"404": {
+						"description": "Solicitação não encontrada."
+					},
+					"200": {
+						"description": "Solicitação encontrada.",
+						"schema": {
+							"$ref": "#/definitions/RetornoSolicitacaoTipificacao"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "\npublic static async Task ConsultaSolicitacao(string codigoSolicitacao)\n{\n   try\n   {\n      if (BearerToken == null)\n         throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n      using (var client = new HttpClient(new HttpClientHandler { \n\t  AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n      {\n         client.BaseAddress = new Uri(UrlBase);\n         client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer\" + BearerToken);\n         string resposta = await client.GetStringAsync(\"api/v1/tipificacao/\" \n         + codigoSolicitacao);\n         dynamic retorno = JsonConvert.DeserializeObject(resposta);\n         return retorno;\n      }\n   }\n   catch (Exception e)\n   {\n      //Sua excessão\n   }\n   return null;\n}"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curl = curl_init();\n\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/tipificacao": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />",
+				"operationId": "Tipificacao_Post",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostTipificacao"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {\ntry\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curlPost = curl_init();\n\n$arqs = array();\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\"));\n\ncurl_setopt_array($curlPost, array(\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0],\n\t\t'arquivo[1]' => $arqs[1]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
+					}
+				]
+			}
+		},
 		"/api/v1/tipificacao/retornararquivo/{codigo}": {
 			"get": {
 				"tags": [
@@ -338,129 +455,12 @@
 				]
 			}
 		},
-		"/api/v1/tipificacao/{codigo}": {
-			"get": {
-				"tags": [
-					"Atomics Assincrono"
-				],
-				"summary": "Consulta de Solicitação",
-				"description": "Utilize esse procedimento para consultar o retorno dos documentos enviados para tipificação.\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a eles (tipo do documento, \r\nOCR, validação e extração de dados, antifraude, validação de assinatura, dentre outros).",
-				"operationId": "Tipificacao_Get",
-				"consumes": [],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "codigo",
-						"in": "path",
-						"description": "Código da solicitação gerado no momento da criação.",
-						"required": true,
-						"type": "integer",
-						"format": "int64"
-					}
-				],
-				"responses": {
-					"401": {
-						"description": "Usuário não logado, ou não possui acesso à solicitação informada."
-					},
-					"404": {
-						"description": "Solicitação não encontrada."
-					},
-					"200": {
-						"description": "Solicitação encontrada.",
-						"schema": {
-							"$ref": "#/definitions/RetornoSolicitacaoTipificacao"
-						}
-					},
-					"500": {
-						"description": "Ocorreu um erro na inclusão da solicitação."
-					}
-				},
-				"x-codeSamples": [
-					{
-						"lang": "C#",
-						"label": "C#",
-						"source": "\npublic static async Task ConsultaSolicitacao(string codigoSolicitacao)\n{\n   try\n   {\n      if (BearerToken == null)\n         throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n      using (var client = new HttpClient(new HttpClientHandler { \n\t  AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n      {\n         client.BaseAddress = new Uri(UrlBase);\n         client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer\" + BearerToken);\n         string resposta = await client.GetStringAsync(\"api/v1/tipificacao/\" \n         + codigoSolicitacao);\n         dynamic retorno = JsonConvert.DeserializeObject(resposta);\n         return retorno;\n      }\n   }\n   catch (Exception e)\n   {\n      //Sua excessão\n   }\n   return null;\n}"
-					},
-					{
-						"lang": "PHP",
-						"label": "PHP",
-						"source": "\n$curl = curl_init();\n\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
-					},
-					{
-						"lang": "NODE",
-						"label": "NODE",
-						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
-					}
-				]
-			}
-		},
-		"/api/v1/tipificacao": {
-			"post": {
-				"tags": [
-					"Atomics Assincrono"
-				],
-				"summary": "Inclusão Síncrona",
-				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />",
-				"operationId": "Tipificacao_Post",
-				"consumes": [],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "model",
-						"in": "body",
-						"required": true,
-						"schema": {
-							"$ref": "#/definitions/PostTipificacao"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Sucesso na inclusão da solicitação.",
-						"schema": {
-							"format": "int64",
-							"type": "integer"
-						}
-					},
-					"500": {
-						"description": "Ocorreu um erro na inclusão da solicitação."
-					}
-				},
-				"x-codeSamples": [
-					{
-						"lang": "C#",
-						"label": "C#",
-						"source": "public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {\ntry\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
-					},
-					{
-						"lang": "PHP",
-						"label": "PHP",
-						"source": "\n$curlPost = curl_init();\n\n$arqs = array();\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\"));\n\ncurl_setopt_array($curlPost, array(\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0],\n\t\t'arquivo[1]' => $arqs[1]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
-					},
-					{
-						"lang": "NODE",
-						"label": "NODE",
-						"source": "\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
-					}
-				]
-			}
-		},
 		"/api/v1/tipificacaoJson": {
 			"post": {
 				"tags": [
 					"Atomics Assincrono"
 				],
-				"summary": "Inclusão Síncrona Json",
+				"summary": "Inclusão Json",
 				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
 				"operationId": "Tipificacao_PostJson",
 				"consumes": [
@@ -1451,15 +1451,16 @@
 			"x-displayName": "Atomics - Login"
 		},
 		{
-			"name": "Atomics Sincrono",
-			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
-			"x-displayName": "Atomics Sincrono"
-		},
-		{
 			"name": "Atomics Assincrono",
 			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
 			"x-displayName": "Atomics Assincrono"
 		},
+		{
+			"name": "Atomics Sincrono",
+			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"x-displayName": "Atomics Sincrono"
+		},
+
 		{
 			"name": "Atomics IDOnline",
 			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
