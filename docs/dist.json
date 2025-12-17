@@ -1,1524 +1,1515 @@
 {
-   "swagger":"2.0",
-   "info":{
-      "version":"v1",
-      "title":"Atomics WebAPI - Documentação de Integração",
-      "description":"# Introdução\nServiço de integração RESTful para o sistema Atomics.\n\r## Topologia e Arquitetura\nO Atomics é uma plataforma capaz realizar a análise eletrônica dos documentos, reduzindo drasticamente o tempo de análise. Dentre suas funcionalidades, podemos destacar:\n\r - Classificação eletrônica (tipificação);\r - Verificação da Assinatura;\r - Validação de Preenchimento dos campos;\r - Extração de informações (OCR 2° camada e estruturado)\r - Facematch\r - Prova de vida\r - IDonline para preenchimento online de formulários \n\nSob a ótica da segurança da informação, uma das grandes vantagens do Atomics é garantir que os dados serão analisados por sistemas (eletronicamente), evitando que o ser humano tenha acesso, por exemplo, à documentação e dados sensíveis do cliente – consequentemente evitando fraudes internas e utilização indesejada de informações.\n\nBenefícios\n\n\r - Aumento da Produtividade através da validação eletrônica dos documentos, conferências, comparações e cálculos automáticos.\r - Agilidade para aprovar uma proposta do cliente com velocidade e segurança.\r - Redução do trabalho manual da sua equipe. Eles irão tratar somente as exceções, e a tecnologia cuidará das atividades operacionais.\r - Redução de risco ao analisar eletronicamente 100% dos documentos enviados, ao invés da utilização de uma amostragem.\r - Redução de custo ao reduzir o esforço da formalização e os erros em decorrência do alto volume\r - Escalabilidade para suportar os picos de produção e a sazonalidade da operação\n\n## Hospedagem\nA plataforma Atomics é hospedada em nuvem utilizando a infraestrutura Cloud Computing. Nesta, utilizamos exclusivamente o Datacenter localizado no Brasil (São Paulo). Desta forma atendemos à exigência do Banco Central do Brasil no que se referente ao processamento dentro das fronteiras nacionais. Por característica, o Atomics é uma aplicação Simply com altíssimo consumo de processamento (CPU) e o demanda constante de treinamento da sua rede neural. Desta forma, os clientes Simply se beneficiam da escalabilidade proporcionada pela infraestrutura em nuvem. Como exemplo prático, em determinados horários de pico, demandamos mais de 200 servidores simultaneamente para atender ao volume de documentos recebidos de nossos clientes.\n\n  Em relação ao Banco de Dados, o utilizamos como serviço, garantindo assim a aplicação das melhores práticas de gestão (backups, atualizações de segurança, etc.) e mantendo nosso foco na evolução dos algoritmos e técnicas necessárias para a constante evolução do produto Atomics.\n\n## Comunicação\nA comunicação de dados entre nossos clientes (Bancos e demais empresas) e a Simply (Atomics), ocorre exclusivamente através de canal criptografado (HTTP/SSL – Security Socket Layer), garantindo o sigilo das informações trafegadas.\n\n  Através de um token, garantimos a autenticação do usuário/senha que, uma vez autorizado, nos envia lotes de documentos (imagens) para processamento. Este token possui um prazo de expiração, exigindo nova autenticação após determinado tempo.\n\nAlguns clientes utilizam adicionalmente a validação de IP de origem. Desta forma, nossa aplicação apenas aceita se comunicar com os endereços IP previamente cadastrados para aquele determinado cliente.\n\n\n## Processamento e Scale\nAtravés de um algoritmo e serviço desenvolvido pela própria Simply, conseguimos prever o volume de servidores necessários para o processamento da fila de documentos/requisições, realizando assim, automaticamente, o scale up (aumento) ou scale down (redução) do número de instâncias de máquinas virtuais necessárias.\n\nCada um destes servidores (máquinas virtuais) envolvidas no scale, possui a característica stateless, não armazenando nenhuma informação, mas sim processando aquela demanda que lhe é requisitada. Esta característica é necessária para garantir que novas máquinas possam ser iniciadas e extinguidas sem nenhum impacto para a aplicação Atomics.\n\n## Armazenamento\nOs clientes da plataforma Atomics optam por armazenar (ou não) os documentos em nuvem com a Simply.\n\nCaso a opção seja pelo não armazenamento, todo documento recebido eletronicamente pela Simply (enviado através do canal criptografado de comunicação), é imediatamente excluído após seu processamento. Desta forma, nenhuma cópia (original ou de segurança), será mantida pela Simply.\n\nCaso o cliente deseje armazenar seus documentos em nuvem com a Simply, disponibilizamos a opção de criptografia deste container de dados. Desta forma, apenas o cliente (de posse de sua chave), terá acesso à cópia dos documentos digitalizados. A opção de armazenamento em nuvem tem sido utilizada como cópia/contingência, inclusive para cumprir exigências regulatórias do Banco Central do Brasil.\n\n\n## Ambientes\nNa lista abaixo estão as URIs utilizadas nas transações do webservice. Essas URIs serão utilizadas para realizar envios e consultas de solicitações.\n\nURIs Produção\n1. URI Login\r - https://{endereco_producao}/Token\n2. URI Inclusão Solicitação\r - https://{endereco_producao}/api/v1/tipificacao\n3. URI Consulta Solicitação\r - https://{endereco_producao}/api/v1/tipificacao/{Solicitacao}\n4. URI Retorno de Arquivos\r - https://{endereco_producao}/api/v1/tipificacao/retornararquivo/{Solicitacao}?codigoArquivo={CodigoArquivo}\n\nURIs Homologação\n1. URI Login\r - https://{endereco_homologacao}/Token\n2. URI Inclusão Solicitação\r - https://{endereco_homologacao}/api/v1/tipificacao\n3. URI Consulta Solicitação\r - https://{endereco_homologacao}/api/v1/tipificacao/{Solicitacao}\n4. URI Retorno de Arquivos\r - https://{endereco_homologacao}/api/v1/tipificacao/retornararquivo/{Solicitacao}?codigoArquivo={CodigoArquivo}\n\n",
-      "contact":{
-         "name":"Simply",
-         "email":"suporte@simply.com.br"
-      },
-      "x-logo":{
-         "url":"https://simply-atomics.github.io/logo-branca.png",
-         "altText":"Logo",
-         "backgroundColor":"#0091ea"
-      }
-   },
-   "host":"localhost:8080",
-   "basePath":"/AtomicsWebAPI",
-   "schemes":[
-      "http"
-   ],
-   "paths":{
-      "/token":{
-         "post":{
-            "tags":[
-               "Autenticacao"
-            ],
-            "summary":"Efetuando Login",
-            "description":"Para acesso ao Atomics, é necessário efetuar o login informando o usuário e senha.",
-            "operationId":"Token",
-            "consumes":[
-               "application/json",
-               "application/x-www-form-urlencoded"
-            ],
-            "produces":[
-               "application/json"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "required":[
-                        "username",
-                        "password"
-                     ],
-                     "type":"object",
-                     "properties":{
-                        "username":{
-                           "description":"informe_seu_usuario",
-                           "type":"string"
-                        },
-                        "password":{
-                           "description":"informe_sua_senha",
-                           "type":"string"
-                        },
-                        "grant_type":{
-                           "description":"password",
-                           "type":"string"
-                        }
-                     }
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso",
-                  "schema":{
-                     "type":"object",
-                     "properties":{
-                        "access_token":{
-                           "type":"string",
-                           "example":"token_de_acesso"
-                        },
-                        "token_type":{
-                           "type":"String",
-                           "example":"bearer"
-                        },
-                        "expires_in":{
-                           "type":"string",
-                           "example":"86399"
-                        },
-                        "userName":{
-                           "type":"string",
-                           "example":"nome_usuario"
-                        },
-                        ".issued":{
-                           "format":"date-time",
-                           "type":"string",
-                           "example":"Tue, 17 Apr 2018 18:48:10 GMT"
-                        },
-                        ".expires":{
-                           "format":"date-time",
-                           "type":"string",
-                           "example":"Wed, 18 Apr 2018 18:48:10 GMT"
-                        }
-                     }
-                  }
-               },
-               "400":{
-                  "description":"Erro",
-                  "schema":{
-                     "type":"object",
-                     "properties":{
-                        "error":{
-                           "type":"string",
-                           "example":"O usuario/senha informado não é válido."
-                        },
-                        "error_description":{
-                           "type":"string",
-                           "example":"O usuario/senha informado não é válido."
-                        }
-                     }
-                  }
-               }
-            },
-            "x-codeSamples":[
-               {
-                  "lang":"C#",
-                  "label":"C#",
-                  "source":"public static async Task LoginAtomics(string usuario, string senha)\n{\n  try\n   {\n    //recupera token de acesso\n    using (var client = new HttpClient\n    (new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.GZip | \n     DecompressionMethods.Deflate\n    }))\n    { \n      client.BaseAddress = new Uri(UrlBase);\n      var data = new Dictionary();\n      //adiciona os campos de usuário\n      data.Add(\"username\", usuario);\n      data.Add(\"password\", senha);\n      data.Add(\"grant_type\", \"password\");\n      FormUrlEncodedContent form = new FormUrlEncodedContent(data);\n      client.DefaultRequestHeaders.Add(\"Accept\", \"application/json\");\n      HttpResponseMessage resposta = await client.PostAsync(\"token\", form);\n      resposta.EnsureSuccessStatusCode();\n      string result2 = await resposta.Content.ReadAsStringAsync();\n      JObject objeto = JObject.Parse(result2);\n      BearerToken = objeto[\"access_token\"].ToString();\n    }\n  }\n  catch (Exception e)\n  { \n    //Sua excessão\n }\n}"
-               },
-               {
-                  "lang":"PHP",
-                  "label":"PHP",
-                  "source":"$curl = curl_init(); \n\ncurl_setopt_array($curl, array(\n\t\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",   \n\tCURLOPT_MAXREDIRS => 10,  \n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,  \n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,  \n\tCURLOPT_CUSTOMREQUEST => \"POST\",       \n\tCURLOPT_POSTFIELDS => \"username = XXXXXXXX & password = XXXXXXXX & grant_type = password\",    \n\tCURLOPT_HTTPHEADER => array(      \n\t\t\"Accept: application/json\",   \n\t\t\"Content-Type: application/x-www-form-urlencoded\"   \n\t), \n));\n\n$response = curl_exec($curl);    \ncurl_close($curl);   \n$token_simply = json_decode($response);    \n$token_simply__ = \"\";\n\nif (isset($token_simply->access_token)) {    \n\t$token_simply__ = $token_simply->access_token;  \n}\n\nelse if (isset($token_simply[\"access_token\"])) { \n\t$token_simply__ = $token_simply[\"access_token\"];   \n}"
-               },
-               {
-                  "lang":"NODE",
-                  "label":"NODE",
-                  "source":"var request = require('request');\nvar options = {\n  'method': 'POST',\n  'url': 'URL_BASE',\n  'headers': {\n    'Accept': 'application/json',\n    'Content-Type': 'application/x-www-form-urlencoded'\n  },\n  form: {\n    'username': 'xxxxxxx',\n    'password': 'xxxxxxx',\n    'grant_type': 'password'\n  }\n};\n\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  var tokenJSON = JSON.parse(response.body);\n});"
-               }
-            ]
-         }
-      },     
-	  "/api/v1/operacional/usuario":{
-         "post":{
-            "tags":[
-               "Operacional"
-            ],
-            "summary":"Habilitar ou Desabilitar Usuário",
-            "description":"Utilize esse procedimento para gerenciar usuários\r\n<br /><br />\r\nNesse endpoint você pode realizar o gerenciamento de usuários no sistema",
-            "operationId":"Operacional_Post",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "responses":{
-               "200":{
-                  "description":"Operação realizada com sucesso",
-                  "schema":{
-                     "type":"object"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na alteração do status do usuário."
-               }
-            }
-         }
-      },
-      "/api/v1/operacional/faturaFeatures":{
-         "get":{
-            "tags":[
-               "Operacional"
-            ],
-            "summary":"Consultar Fatura Features",
-            "description":"Utilize esse procedimento para gerenciar consultar Features\r\n<br /><br />\r\nNesse endpoint você pode consultar os dados de uso da plataforma",
-            "operationId":"Operacional_GetFeatures",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "responses":{
-               "200":{
-                  "description":"Operação realizada com sucesso",
-                  "schema":{
-                     "type":"object"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro ao retornar o relatório."
-               }
-            }
-         }
-      },
-      "/api/v1/operacional/faturaKitsPaginas":{
-         "get":{
-            "tags":[
-               "Operacional"
-            ],
-            "summary":"Consultar Fatura Kits e Paginas",
-            "description":"Utilize esse procedimento para consultar Fatura Kits e Paginas\r\n<br /><br />\r\nNesse endpoint você pode consultar os dados de uso da plataforma",
-            "operationId":"Operacional_GetKitsPaginas",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "responses":{
-               "200":{
-                  "description":"Operação realizada com sucesso",
-                  "schema":{
-                     "type":"object"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro ao retornar o relatório."
-               }
-            }
-         }
-      },
-      "/api/v1/tipificacao/retornararquivo/{codigo}":{
-         "get":{
-            "tags":[
-               "Atomics Assincrono"
-            ],
-            "summary":"Download de Arquivos - Bytes",
-            "description":"Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
-            "operationId":"Tipificacao_RetornarArquivo",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"codigo",
-                  "in":"path",
-                  "description":"Codigo da solicitação",
-                  "required":true,
-                  "type":"integer",
-                  "format":"int64"
-               },
-               {
-                  "name":"codigoArquivo",
-                  "in":"query",
-                  "description":"Codigo do arquivo a ser retornado",
-                  "required":true,
-                  "type":"integer",
-                  "format":"int64"
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"OK",
-                  "schema":{
-                     "type":"object"
-                  }
-               }
-            },
-            "x-codeSamples":[
-               {
-                  "lang":"C#",
-                  "label":"C#",
-                  "source":"\npublic static async Task<byte[]> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n      byte[] byteArray = await client.GetByteArrayAsync(\"api/v1/tipificacao/retornararquivo/\n      + codigoSolicitacao + \"?codigoArquivo = \" + codigoArquivo);\n      return byteArray;\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
-               },
-               {
-                  "lang":"PHP",
-                  "label":"PHP",
-                  "source":"\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
-               },
-               {
-                  "lang":"NODE",
-                  "label":"NODE",
-                  "source":"\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
-               }
-            ]
-         }
-      },
-      "/api/v1/tipificacao/retornarArquivoBase64/{codigo}":{
-         "get":{
-            "tags":[
-               "Atomics Assincrono"
-            ],
-            "summary":"Download de Arquivos - Base64",
-            "description":"Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
-            "operationId":"Tipificacao_RetornarArquivoJson",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"codigo",
-                  "in":"path",
-                  "description":"Codigo da solicitação",
-                  "required":true,
-                  "type":"integer",
-                  "format":"int64"
-               },
-               {
-                  "name":"codigoArquivo",
-                  "in":"query",
-                  "description":"Codigo do arquivo a ser retornado",
-                  "required":true,
-                  "type":"integer",
-                  "format":"int64"
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"OK",
-                  "schema":{
-                     "type":"object"
-                  }
-               }
-            },
-            "x-codeSamples":[
-               {
-                  "lang":"C#",
-                  "label":"C#",
-                  "source":"\npublic static async Task<dynamic> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n     string resposta = await client.GetStringAsync(\"api/v1/tipificacao/retornararquivoBase64/\n     + codigoSolicitacao + \"?codigoArquivo=\" + codigoArquivo);\n     dynamic retorno = resposta;\n    }\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
-               },
-               {
-                  "lang":"PHP",
-                  "label":"PHP",
-                  "source":"\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
-               },
-               {
-                  "lang":"NODE",
-                  "label":"NODE",
-                  "source":"\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
-               }
-            ]
-         }
-      },
-      "/api/v1/tipificacao/{codigo}":{
-         "get":{
-            "tags":[
-               "Atomics Assincrono"
-            ],
-            "summary":"Consulta de Solicitação",
-            "description":"Utilize esse procedimento para consultar o retorno dos documentos enviados para tipificação.\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a eles (tipo do documento, \r\nOCR, validação e extração de dados, antifraude, validação de assinatura, dentre outros).",
-            "operationId":"Tipificacao_Get",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"codigo",
-                  "in":"path",
-                  "description":"Código da solicitação gerado no momento da criação.",
-                  "required":true,
-                  "type":"integer",
-                  "format":"int64"
-               }
-            ],
-            "responses":{
-               "401":{
-                  "description":"Usuário não logado, ou não possui acesso à solicitação informada."
-               },
-               "404":{
-                  "description":"Solicitação não encontrada."
-               },
-               "200":{
-                  "description":"Solicitação encontrada.",
-                  "schema":{
-                     "$ref":"#/definitions/RetornoSolicitacaoTipificacao"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            },
-            "x-codeSamples":[
-               {
-                  "lang":"C#",
-                  "label":"C#",
-                  "source":"\npublic static async Task ConsultaSolicitacao(string codigoSolicitacao)\n{\n   try\n   {\n      if (BearerToken == null)\n         throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n      using (var client = new HttpClient(new HttpClientHandler { \n\t  AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n      {\n         client.BaseAddress = new Uri(UrlBase);\n         client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer\" + BearerToken);\n         string resposta = await client.GetStringAsync(\"api/v1/tipificacao/\" \n         + codigoSolicitacao);\n         dynamic retorno = JsonConvert.DeserializeObject(resposta);\n         return retorno;\n      }\n   }\n   catch (Exception e)\n   {\n      //Sua excessão\n   }\n   return null;\n}"
-               },
-               {
-                  "lang":"PHP",
-                  "label":"PHP",
-                  "source":"\n$curl = curl_init();\n\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
-               },
-               {
-                  "lang":"NODE",
-                  "label":"NODE",
-                  "source":"\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
-               }
-            ]
-         }
-      },
-      "/api/v1/tipificacao":{
-         "post":{
-            "tags":[
-               "Atomics Assincrono"
-            ],
-            "summary":"Inclusão Síncrona",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />",
-            "operationId":"Tipificacao_Post",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostTipificacao"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            },
-            "x-codeSamples":[
-               {
-                  "lang":"C#",
-                  "label":"C#",
-                  "source":"public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {\ntry\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
-               },
-               {
-                  "lang":"PHP",
-                  "label":"PHP",
-                  "source":"\n$curlPost = curl_init();\n\n$arqs = array();\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\"));\n\ncurl_setopt_array($curlPost, array(\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0],\n\t\t'arquivo[1]' => $arqs[1]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
-               },
-               {
-                  "lang":"NODE",
-                  "label":"NODE",
-                  "source":"\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
-               }
-            ]
-         }
-      },
-      "/api/v1/tipificacaoJson":{
-         "post":{
-            "tags":[
-               "Atomics Assincrono"
-            ],
-            "summary":"Inclusão Síncrona Json",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
-            "operationId":"Tipificacao_PostJson",
-            "consumes":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml",
-               "application/x-www-form-urlencoded"
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostJSon"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-      "/api/v1/tipificacaoSync":{
-         "post":{
-            "tags":[
-               "Atomics Sincrono"
-            ],
-            "summary":"Tipificação Síncrona",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar apenas documentos de RG e CNH e deve ser enviado 1 documento por solicitação.",
-            "operationId":"Tipificacao_PostSync",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostTipificacaoSync"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "$ref":"#/definitions/RetornoTipificacaoJsonSync"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            },
-            "x-codeSamples":[
-               {
-                  "lang":"C#",
-                  "label":"C#",
-                  "source":"\npublic static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") \n{\n  try\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n     AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip})) \n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length),\n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacaoSync\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}"
-               },
-               {
-                  "lang":"PHP",
-                  "label":"PHP",
-                  "source":"\n$curlPost = curl_init(); \n\n$arqs = array(); \n\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n\ncurl_setopt_array($curlPost, array(\n\t\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
-               },
-               {
-                  "lang":"NODE",
-                  "label":"NODE",
-                  "source":"\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        }\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
-               }
-            ]
-         }
-      },
-      "/api/v1/tipificacaoSyncJson":{
-         "post":{
-            "tags":[
-               "Atomics Sincrono"
-            ],
-            "summary":"Tipificação Síncrona Json",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar apenas documentos de RG e CNH e deve ser enviado 1 documento por solicitação.",
-            "operationId":"Tipificacao_PostSyncJson",
-            "consumes":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml",
-               "application/x-www-form-urlencoded"
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostJSon"
-                  }
-               },
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostTipificacaoSync"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-      "/api/v1/tipificacaoExtracaoSync":{
-         "post":{
-            "tags":[
-               "Atomics IDOnline"
-            ],
-            "summary":"Tipificação e Extração Síncrona (IDOnline)",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN** - Tipificação e Extração<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
-            "operationId":"Tipificacao_PostSyncExtracao",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostTipificacaoSync"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-      "/api/v1/tipificacaoExtracaoSyncJson":{
-         "post":{
-            "tags":[
-               "Atomics IDOnline"
-            ],
-            "summary":"Tipificação e Extração Síncrona Json (IDOnline)",
-            "description":"Utilize esse procedimento para enviar documentos ao Atomics no formato Json.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN** - Tipificação e Extração\r\n<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
-            "operationId":"Tipificacao_PostSyncExtracaoJson",
-            "consumes":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml",
-               "application/x-www-form-urlencoded"
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostJSon"
-                  }
-               },
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostTipificacaoSync"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-      "/api/v1/tipificacao/incluirarquivos/{codigo}":{
-         "post":{
-            "tags":[
-               "Atomics Assincrono"
-            ],
-            "summary":"Inclusão de documento - Bytes",
-            "description":"Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".\r\nSerá necessário o envio de apenas um documento por vez",
-            "operationId":"Tipificacao_IncluirArquivos",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"codigo",
-                  "in":"path",
-                  "required":true,
-                  "type":"string"
-               },
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/IncluirArquivo"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-      "/api/v1/tipificacao/incluirarquivosBase64":{
-         "post":{
-            "tags":[
-               "Atomics Assincrono"
-            ],
-            "summary":"Inclusão de documento - Base64",
-            "description":"Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\". Será necessário o envio de apenas um documento por vez",
-            "operationId":"Tipificacao_IncluirArquivosBase64",
-            "consumes":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml",
-               "application/x-www-form-urlencoded"
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/PostArquivoJson"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-      "/api/v1/tipificacao/iniciarprocessamento/{codigo}":{
-         "post":{
-            "tags":[
-               "Atomics Assincrono"
-            ],
-            "summary":"Iniciar processamento",
-            "description":"Esse endpoint é reponsável por iniciar o processamento de chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".",
-            "operationId":"Tipificacao_IniciarProcessamento",
-            "consumes":[
-               
-            ],
-            "produces":[
-               "application/json",
-               "text/json",
-               "application/xml",
-               "text/xml"
-            ],
-            "parameters":[
-               {
-                  "name":"codigo",
-                  "in":"path",
-                  "required":true,
-                  "type":"string"
-               },
-               {
-                  "name":"model",
-                  "in":"body",
-                  "required":true,
-                  "schema":{
-                     "$ref":"#/definitions/IniciarProcesso"
-                  }
-               }
-            ],
-            "responses":{
-               "200":{
-                  "description":"Sucesso na inclusão da solicitação.",
-                  "schema":{
-                     "format":"int64",
-                     "type":"integer"
-                  }
-               },
-               "500":{
-                  "description":"Ocorreu um erro na inclusão da solicitação."
-               }
-            }
-         }
-      },
-   },
-   "definitions":{
-      "RetornoSolicitacaoTipificacao":{
-         "type":"object",
-         "properties":{
-            "CodigoSolicitacao":{
-               "format":"int64",
-               "type":"integer"
-            },
-            "CodigoSolicitacaoVAR":{
-               "format":"int64",
-               "type":"integer"
-            },
-            "CodigoLegado":{
-               "type":"string"
-            },
-            "DataSolicitacao":{
-               "format":"date-time",
-               "type":"string"
-            },
-            "DataProcessamento":{
-               "format":"date-time",
-               "type":"string"
-            },
-            "Status":{
-               "format":"int32",
-               "enum":[
-                  0,
-                  1,
-                  2,
-                  3,
-                  4,
-                  5
-               ],
-               "x-enum-descriptions":["Pendente", "Processado", "Bloquado", "Aguardando arquivo", "Pendente reprocessamento"],
-               "x-enum-varnames":["Pendente", "Processado", "Cancelado", "Bloqueado", "AguardandoArquivo", "PendenteReprocessamento"],
-               "type":"integer"
-            },
-            "TipoArquivo":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/RetornoTipoArquivo"
-               }
-            }
-         }
-      },
-      "RetornoTipoArquivo":{
-         "type":"object",
-         "properties":{
-            "TipoArquivo":{
-               "format":"int32",
-               "type":"integer"
-            },
-            "NomeTipoArquivo":{
-               "type":"string"
-            },
-            "FolhaInteira":{
-               "type":"boolean"
-            },
-            "VersaoDocumento":{
-               "type":"string"
-            },
-            "PossuiAssinatura":{
-               "type":"boolean"
-            },
-            "CamposPreenchidos":{
-               "type":"boolean"
-            },
-            "CamposManuscritos":{
-               "type":"boolean"
-            },
-            "ImagemColorida":{
-               "type":"boolean"
-            },
-            "ImagemRotacionada":{
-               "type":"boolean"
-            },
-            "Metadados":{
-               "type":"object",
-               "additionalProperties":{
-                  "type":"object"
-               }
-            },
-            "Campos":{
-               "type":"object",
-               "additionalProperties":{
-                  "type":"array",
-                  "items":{
-                     "$ref":"#/definitions/Campos"
-                  }
-               }
-            },
-            "Indices":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/IndicesDoc"
-               }
-            },
-            "ArquivosRetorno":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/ArquivoRetorno"
-               }
-            }
-         }
-      },
-      "Campos":{
-         "type":"object",
-         "properties":{
-            "Nome":{
-               "type":"string"
-            },
-            "Valor":{
-               "type":"object"
-            },
-            "Tipo":{
-               "format":"int32",
-               "type":"integer"
-            }
-         }
-      },
-      "IndicesDoc":{
-         "type":"object",
-         "properties":{
-            "Nome":{
-               "type":"string"
-            },
-            "Termos":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/TermoIndice"
-               }
-            }
-         }
-      },
-      "ArquivoRetorno":{
-         "type":"object",
-         "properties":{
-            "CodigoArquivo":{
-               "format":"int64",
-               "type":"integer"
-            },
-            "NomeArquivo":{
-               "type":"string"
-            },
-            "NomeCampo":{
-               "type":"string"
-            },
-            "Tipo":{
-               "format":"int32",
-               "type":"integer"
-            }
-         }
-      },
-      "TermoIndice":{
-         "type":"object",
-         "properties":{
-            "Termo":{
-               "type":"string"
-            },
-            "X":{
-               "format":"int32",
-               "type":"integer"
-            },
-            "Y":{
-               "format":"int32",
-               "type":"integer"
-            },
-            "Altura":{
-               "format":"int32",
-               "type":"integer"
-            },
-            "Largura":{
-               "format":"int32",
-               "type":"integer"
-            }
-         }
-      },
-      "IDadosArquivo":{
-         "type":"object",
-         "properties":{
-            "NomeOriginal":{
-               "type":"string"
-            },
-            "ArquivoValido":{
-               "type":"boolean"
-            },
-            "Bytes":{
-               "format":"byte",
-               "type":"string"
-            }
-         }
-      },
-      "AntiFraude":{
-         "required":[
-            "CodigoLegado",
-            "Arquivo"
-         ],
-         "type":"object",
-         "properties":{
-            "CodigoLegado":{
-               "description":"Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
-               "type":"string"
-            },
-            "Arquivo":{
-               "description":"Deve conter os arquivos que serão tipificados e comparados pelo Facematch (Selfie e Documento).",
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/IDadosArquivo"
-               }
-            },
-            "JsonParametros":{
-               "description":"Parâmetros informados ao VAR para customização de processamentos específicos (ver mais na seção \"Parâmetros de Entrada\")",
-               "type":"string"
-            }
-         }
-      },
-      "PostTipificacao":{
-         "required":[
-            "CodigoLegado",
-            "Arquivo"
-         ],
-         "type":"object",
-         "properties":{
-            "EnvioParcial":{
-               "description":"Ao setar esse campo como true, você está sinalizando o Atomics que vai enviar os arquivos de forma assincrona",
-               "type":"boolean",
-               "example":false
-            },
-            "CodigoLegado":{
-               "description":"Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
-               "type":"String"
-            },
-            "Arquivo":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/IDadosArquivo"
-               }
-            },
-            "ExtrairDados":{
-               "description":"Campo que poderá ser utilizado para definir se os dados serão extraídos pelo Atomics e retornados pelo serviço.",
-               "type":"boolean",
-               "example":false
-            },
-            "PerfilTipificacao":{
-               "description":"Campo que poderá ser utilizado para definir qual conjunto de documentos será tipificado pela solicitação, esta informação será repassada pela Simply de acordo com os perfis criados para o cliente",
-               "type":"String"
-            }
-         }
-      },
-      "PostJSon":{
-         "type":"object",
-         "properties":{
-            "CodigoLegado":{
-               "type":"string"
-            },
-            "PerfilTipificacao":{
-               "type":"string"
-            },
-            "Arquivos":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/ArquivoJson"
-               }
-            }
-         }
-      },
-      "ArquivoJson":{
-         "type":"object",
-         "properties":{
-            "NomeArquivo":{
-               "type":"string"
-            },
-            "ImageData":{
-               "format":"byte",
-               "type":"string"
-            }
-         }
-      },
-      "RetornoTipificacaoJsonSync":{
-         "type":"object",
-         "properties":{
-            "Arquivos":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/ArquivoSync"
-               }
-            },
-            "ArquivosExtracao":{
-               "type":"object"
-            },
-            "CodigoSolicitacao":{
-               "format":"int32",
-               "type":"integer"
-            },
-            "CodigoSolicitacaoVAR":{
-               "type":"object"
-            },
-            "CodigoLegado":{
-               "type":"string"
-            },
-            "DataSolicitacao":{
-               "format":"date-time",
-               "type":"string"
-            },
-            "DataProcessamento":{
-               "format":"date-time",
-               "type":"string"
-            },
-            "Status":{
-               "format":"int32",
-               "type":"integer"
-            },
-            "TipoArquivo":{
-               "type":"object"
-            }
-         }
-      },
-      "ArquivoSync":{
-         "type":"object",
-         "properties":{
-            "OCR":{
-               "type":"string"
-            },
-            "Nome":{
-               "type":"string"
-            },
-            "Hash":{
-               "type":"string"
-            },
-            "TipoArquivo":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/TipoArquivo"
-               }
-            }
-         }
-      },
-      "TipoArquivo":{
-         "type":"object",
-         "properties":{
-            "TipoArquivo":{
-               "format":"int32",
-               "type":"integer"
-            },
-            "NomeTipoArquivo":{
-               "type":"string"
-            },
-            "FolhaInteira":{
-               "type":"boolean"
-            },
-            "VersaoDocumento":{
-               "type":"object"
-            },
-            "PossuiAssinatura":{
-               "type":"object"
-            },
-            "CamposPreenchidos":{
-               "type":"object"
-            },
-            "CamposManuscritos":{
-               "type":"object"
-            },
-            "ImagemColorida":{
-               "type":"object"
-            },
-            "ImagemRotacionada":{
-               "type":"boolean"
-            },
-            "Metadados":{
-               "$ref":"#/definitions/MetadadosSync"
-            },
-            "Campos":{
-               "type":"object"
-            },
-            "Indices":{
-               "type":"object"
-            },
-            "ArquivosRetorno":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/ArquivosRetorno"
-               }
-            }
-         }
-      },
-      "MetadadosSync":{
-         "type":"object",
-         "properties":{
-            "EstadoTexto":{
-               "type":"string"
-            },
-            "BrasaoTexto":{
-               "type":"string"
-            },
-            "OrgaoTexto":{
-               "type":"string"
-            },
-            "AlfabetizadoTexto":{
-               "type":"string"
-            },
-            "RegistroTexto":{
-               "type":"string"
-            },
-            "ExpedicaoTexto":{
-               "type":"string"
-            },
-            "NomeTexto":{
-               "type":"string"
-            },
-            "FiliacaoTexto":{
-               "type":"string"
-            },
-            "NomePaiTexto":{
-               "type":"string"
-            },
-            "NomeMaeTexto":{
-               "type":"string"
-            },
-            "NaturalidadeTexto":{
-               "type":"string"
-            },
-            "DataNascimentoTexto":{
-               "type":"string"
-            },
-            "OrigemTexto":{
-               "type":"string"
-            },
-            "CPFTexto":{
-               "type":"string"
-            },
-            "ViaTexto":{
-               "type":"string"
-            }
-         }
-      },
-      "ArquivosRetorno":{
-         "type":"object",
-         "properties":{
-            "CodigoArquivo":{
-               "format":"int32",
-               "type":"integer"
-            },
-            "NomeArquivo":{
-               "type":"string"
-            },
-            "NomeCampo":{
-               "type":"object"
-            },
-            "Tipo":{
-               "format":"int32",
-               "type":"integer"
-            }
-         }
-      },
-      "PostTipificacaoSync":{
-         "required":[
-            "CodigoLegado",
-            "Arquivo"
-         ],
-         "type":"object",
-         "properties":{
-            "CodigoLegado":{
-               "description":"Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
-               "type":"string"
-            },
-            "Arquivo":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/IDadosArquivo"
-               }
-            }
-         }
-      },
-      "IncluirArquivo":{
-         "required":[
-            "CodigoSolicitacao",
-            "Arquivo"
-         ],
-         "type":"object",
-         "properties":{
-            "CodigoSolicitacao":{
-               "description":"codigo_de_solicitacao",
-               "type":"string"
-            },
-            "Arquivo":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/IDadosArquivo"
-               }
-            }
-         }
-      },
-      "PostArquivoJson":{
-         "type":"object",
-         "properties":{
-            "CodigoSolicitacao":{
-               "type":"string"
-            },
-            "NomeArquivo":{
-               "type":"string"
-            },
-            "ImageData":{
-               "format":"byte",
-               "type":"string"
-            }
-         }
-      },
-      "IniciarProcesso":{
-         "required":[
-            "CodigoSolicitacao"
-         ],
-         "type":"object",
-         "properties":{
-            "CodigoSolicitacao":{
-               "description":"codigo_de_solicitacao",
-               "type":"string"
-            }
-         }
-      },
-      "Login":{
-         "required":[
-            "username",
-            "password"
-         ],
-         "type":"object",
-         "properties":{
-            "username":{
-               "description":"informe_seu_usuario",
-               "type":"string"
-            },
-            "password":{
-               "description":"informe_sua_senha",
-               "type":"string"
-            },
-            "grant_type":{
-               "description":"password",
-               "type":"string"
-            }
-         }
-      },
-      "LoginSucesso":{
-         "type":"object",
-         "properties":{
-            "access_token":{
-               "type":"string",
-               "example":"token_de_acesso"
-            },
-            "token_type":{
-               "type":"String",
-               "example":"bearer"
-            },
-            "expires_in":{
-               "type":"string",
-               "example":"86399"
-            },
-            "userName":{
-               "type":"string",
-               "example":"nome_usuario"
-            },
-            ".issued":{
-               "format":"date-time",
-               "type":"string",
-               "example":"Tue, 17 Apr 2018 18:48:10 GMT"
-            },
-            ".expires":{
-               "format":"date-time",
-               "type":"string",
-               "example":"Wed, 18 Apr 2018 18:48:10 GMT"
-            }
-         }
-      },
-      "LoginErro":{
-         "type":"object",
-         "properties":{
-            "error":{
-               "type":"string",
-               "example":"O usuario/senha informado não é válido."
-            },
-            "error_description":{
-               "type":"string",
-               "example":"O usuario/senha informado não é válido."
-            }
-         }
-      }
-   },
-   "x-servers":[
-      {
-         "url":"https://atomics-hom.simply.com.br",
-         "description":"Homologação"
-      },
-      {
-         "url":"https://atomics-api.simply.com.br",
-         "description":"Produção"
-      }
-   ],
-   "tags":[
-      {
-         "name":"Autenticacao",
-         "description":"Nessa seção, você encontrará informações sobre como se autenticar na aplicação",
-         "x-displayName":"Atomics - Login"
-      },
-	  {
-         "name":"Atomics Sincrono",
-         "description":"Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
-         "x-displayName":"Atomics Sincrono"
-      },
-	  {
-         "name":"Atomics Assincrono",
-         "description":"Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
-         "x-displayName":"Atomics Assincrono"
-      },
-	  {
-         "name":"Atomics IDOnline",
-         "description":"Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
-         "x-displayName":"Atomics IDOnline"
-      },
-      {
-         "name":"DadosEstruturados",
-         "description":"Para facilitar a utilização e manipulação dos dados, o Atomics retorna os dados de alguns documentos de forma estruturada.\n\n Documentos: \n\n\n\n- RG Frente e Verso\n\n- CNH Frente e Verso\n\n- DNI Frente e verso\n\n- CIN Frente e Verso\n\n- CRLV\n\n- CRLV Eletrônico\n\n# Dicionário de Dados\n\n## RG Frente \n\n**RG Frente**<table style=\"width:auto; height: 590px;\">\r\n <thead>\r\n<tr>\r\n <td style=\"width:121px\"><strong>Campo</strong></td>\r\n<td style=\"width:278px; text-align: center;\"><strong>Descrição</strong></td>\r\n<td style=\"width:121px; text-align: center;\"><strong>Tipo</strong></td>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td>TipoArquivo</td>\r\n<td style=\"text-align: center;\">Número identificador do Documento</td>\r\n<td style=\"text-align: center;\">Inteiro</td>\r\n</tr>\r\n<tr>\r\n<td>NomeTipoArquivo</td>\r\n<td style=\"text-align: center;\">Nome identificador do Documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n </tr>\r\n<tr>\r\n<tr>\r\n<td>FolhaInteira</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n <td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>VersaoDocumento</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n </tr>\r\n<tr>\r\n<td>PossuiAssinatura</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que o documento possui assinatura\t\t</td>\r\n <td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>CamposManuscritos</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que o documento possui campos manuscritos</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemColorida</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que a imagem é colorida</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemRotacionada</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se a imagem está rotacionada</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>Assertividade</td>\r\n<td style=\"text-align: center;\">Retorno da rede neural de confiança de que a imagem é realmente aquele documento.</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>EstadoTexto</td>\r\n<td style=\"text-align: center;\"> </td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>OrgaoTexto</td>\r\n<td style=\"text-align: center;\">Retorna a interpretação da leitura do OCR identifica o órgão emissor do documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>AlfabetizadoTexto</td>\r\n<td style=\"text-align: center;\">Retorna a interpretação da leitura do OCR identifica se portador é alfabetizado ou não</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>FaceMatch</td>\r\n<td style=\"text-align: center;\">Retorna o percentual de assertividade na comparação da foto entre o documento e a selfie.</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n</tbody>\r\n</table>\r\n\r\n\n\n## RG Verso \n\n**RG Verso**<table style=\"width:auto; height: 590px;\">\r\n <thead>\r\n<tr>\r\n <td style=\"width:121px\"><strong>Campo</strong></td>\r\n<td style=\"width:278px; text-align: center;\"><strong>Descrição</strong></td>\r\n<td style=\"width:121px; text-align: center;\"><strong>Tipo</strong></td>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td>TipoArquivo</td>\r\n<td style=\"text-align: center;\">Número identificador do Documento</td>\r\n<td style=\"text-align: center;\">Inteiro</td>\r\n</tr>\r\n<tr>\r\n<td>NomeTipoArquivo</td>\r\n<td style=\"text-align: center;\">Nome identificador do Documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n </tr>\r\n<tr>\r\n<tr>\r\n<td>FolhaInteira</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n <td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>VersaoDocumento</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n </tr>\r\n<tr>\r\n<td>PossuiAssinatura</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que o documento possui assinatura\t\t</td>\r\n <td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>CamposPreenchidos</td>\r\n<td style=\"text-align: center;\">Quando mapeados, retorna se todos os campos estão preenchidos ou não</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>CamposManuscritos</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que o documento possui campos manuscritos</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemColorida</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que a imagem é colorida</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemRotacionada</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se a imagem está rotacionada</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>Assertividade</td>\r\n<td style=\"text-align: center;\">Retorno da rede neural de confiança de que a imagem é realmente aquele documento.</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>ExpedicaoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a data de expedição do documento\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>NomeTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR Identifica o nome do portador do documento\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>FiliacaoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a filiação (Nome pai e mãe)\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>NomeMaeTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o nome da mãe</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>NaturalidadeTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a naturalidade</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>DataNascimentoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a data de nascimento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>OrigemTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a descrição do campo Doc. Origem da RG</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>CPFTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o número do CPF</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>ViaTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identfica a descrição da via do documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>Qualidade</td>\r\n<td style=\"text-align: center;\">Percentual de campos extraídos do documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n</tbody>\r\n</table>\r\n\r\n## CNH Frente \n\n**CNH Frente**<table style=\"width:auto; height: 590px;\">\r\n <thead>\r\n<tr>\r\n <td style=\"width:121px\"><strong>Campo</strong></td>\r\n<td style=\"width:278px; text-align: center;\"><strong>Descrição</strong></td>\r\n<td style=\"width:121px; text-align: center;\"><strong>Tipo</strong></td>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td>TipoArquivo</td>\r\n<td style=\"text-align: center;\">Número identificador do Documento</td>\r\n<td style=\"text-align: center;\">Inteiro</td>\r\n</tr>\r\n<tr>\r\n<td>NomeTipoArquivo</td>\r\n<td style=\"text-align: center;\">Nome identificador do Documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n </tr>\r\n<tr>\r\n<tr>\r\n<td>FolhaInteira</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n <td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>VersaoDocumento</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n </tr>\r\n<tr>\r\n<td>PossuiAssinatura</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que o documento possui assinatura\t\t</td>\r\n <td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>CamposPreenchidos</td>\r\n<td style=\"text-align: center;\">Quando mapeados, retorna se todos os campos estão preenchidos ou não</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>CamposManuscritos</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que o documento possui campos manuscritos</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemColorida</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que a imagem é colorida</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemRotacionada</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se a imagem está rotacionada</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>Assertividade</td>\r\n<td style=\"text-align: center;\">Retorno da rede neural de confiança de que a imagem é realmente aquele documento.</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>NomeTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o nome do portador do documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>IdentidadeTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o número do documento de Identidade</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>EstadoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o estado emissor do documento de Identidade</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>CPFTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o número do CPF\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>DataNascimentoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a data de nascimento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>CPFTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o número do CPF\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>FiliacaoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a filiação (Nome pai e mãe)</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>NomePaiTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o nome do pai\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>NomeMaeTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o nome da mãe</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>RegistroTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o número de registro da CNH\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>ValidadeTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a data de validade da CNH\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>PrimeiraHabilitacaoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a data da primeira habilitação\t</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>TipoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o Tipo (Categoria) da habilitação</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>Qualidade</td>\r\n<td style=\"text-align: center;\">Percentual de campos extraídos do documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>FaceMatch</td>\r\n<td style=\"text-align: center;\">Retorna o percentual de assertividade na comparação da foto entre o documento e a selfie</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n</tbody>\r\n</table>\r\n\r\n\n\n## CNH Verso \n\n**CNH Verso**<table style=\"width:auto; height: 590px;\">\r\n <thead>\r\n<tr>\r\n <td style=\"width:121px\"><strong>Campo</strong></td>\r\n<td style=\"width:278px; text-align: center;\"><strong>Descrição</strong></td>\r\n<td style=\"width:121px; text-align: center;\"><strong>Tipo</strong></td>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td>TipoArquivo</td>\r\n<td style=\"text-align: center;\">Número identificador do Documento</td>\r\n<td style=\"text-align: center;\">Inteiro</td>\r\n</tr>\r\n<tr>\r\n<td>NomeTipoArquivo</td>\r\n<td style=\"text-align: center;\">Nome identificador do Documento</td>\r\n<td style=\"text-align: center;\">String</td>\r\n </tr>\r\n<tr>\r\n<tr>\r\n<td>FolhaInteira</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n <td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>VersaoDocumento</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n </tr>\r\n<tr>\r\n<td>PossuiAssinatura</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que o documento possui assinatura\t\t</td>\r\n <td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>CamposPreenchidos</td>\r\n<td style=\"text-align: center;\">Quando mapeados, retorna se todos os campos estão preenchidos ou não</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>CamposManuscritos</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que o documento possui campos manuscritos</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemColorida</td>\r\n<td style=\"text-align: center;\">Se marcado identifica que a imagem é colorida</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemRotacionada</td>\r\n<td style=\"text-align: center;\">Se marcado identifica se a imagem está rotacionada</td>\r\n<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>Assertividade</td>\r\n<td style=\"text-align: center;\">Retorno da rede neural de confiança de que a imagem é realmente aquele documento.</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>ObservacaoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o texto do campo Observações</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>LocalTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o local</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>DataEmissaoTexto</td>\r\n<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a data de emissão da CNH</td>\r\n<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n<tr>\r\n</tbody>\r\n</table>\r\n\r\n\n## CIN Frente \n\n**CIN Frente**<table style=\"width:auto;height:590px;\">\r\n<thead>\r\n<tr>\r\n<td style=\"width:121px\"><strong>Campo</strong></td>\r\n<td style=\"width:278px;text-align:center;\"><strong>Descrição</strong></td>\r\n<td style=\"width:121px;text-align:center;\"><strong>Tipo</strong></td>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td>TipoArquivo</td>\r\n<td style=\"text-align:center;\">Número identificador do Documento</td>\r\n<td style=\"text-align:center;\">Inteiro</td>\r\n</tr>\r\n<tr>\r\n<td>NomeTipoArquivo</td>\r\n<td style=\"text-align:center;\">Nome identificador do Documento</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n<tr>\r\n<tr>\r\n<td>FolhaInteira</td>\r\n<td style=\"text-align:center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n<td style=\"text-align:center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>VersaoDocumento</td>\r\n<td style=\"text-align:center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n<td style=\"text-align:center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>PossuiAssinatura</td>\r\n<td style=\"text-align:center;\">Se marcado identifica que o documento possui assinatura\t\t</td>\r\n<td style=\"text-align:center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>CamposManuscritos</td>\r\n<td style=\"text-align:center;\">Se marcado identifica que o documento possui campos manuscritos</td>\r\n<td style=\"text-align:center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemColorida</td>\r\n<td style=\"text-align:center;\">Se marcado identifica que a imagem é colorida</td>\r\n<td style=\"text-align:center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>ImagemRotacionada</td>\r\n<td style=\"text-align:center;\">Se marcado identifica se a imagem está rotacionada</td>\r\n<td style=\"text-align:center;\">Boolean</td>\r\n</tr>\r\n<tr>\r\n<td>Assertividade</td>\r\n<td style=\"text-align:center;\">Retorno da rede neural de confiança de que a imagem é realmente aquele documento.</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>TipoRGTexto</td>\r\n<td style=\"text-align:center;\"></td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>NomeTexto</td>\r\n<td style=\"text-align:center;\">Retorna a interpretação da leitura do OCR</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>CPFTexto</td>\r\n<td style=\"text-align:center;\">Retorno da extração OCR-Identifica o número do CPF</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>SexoTexto</td>\r\n<td style=\"text-align:center;\">Retorno da extração OCR-Identifica o sexo do portador do documento</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>ValidadeTexto</td>\r\n<td style=\"text-align:center;\">Retorno da extração OCR-Identifica o número do CPF</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>NascimentoTexto</td>\r\n<td style=\"text-align:center;\">Retorno da extração OCR-Identifica a data de nascimento</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>NaturalidadeTexto</td>\r\n<td style=\"text-align:center;\">Retorno da extração OCR-Identifica a naturalidade</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>NacionalidadeTexto</td>\r\n<td style=\"text-align:center;\">Retorno da extração OCR-Identifica a nacionalidade</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>EstadoTexto</td>\r\n<td style=\"text-align:center;\">Retorno da extração OCR-Identifica o estado emissor do documento de Identidade/td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>OrgaoTexto</td>\r\n<td style=\"text-align:center;\">Retorno da extração OCR-Identifica o órgão emissor do documento</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>ImpossibilidadeDeAssinarTexto</td>\r\n<td style=\"text-align:center;\">Retorna a interpretação da leitura do OCR identifica se o portador possui alguma condição que não o permite assinar</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>AlfabetizadoTexto</td>\r\n<td style=\"text-align:center;\">Retorna a interpretação da leitura do OCR identifica se portador é alfabetizado ou não</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n</tr>\r\n<tr>\r\n<td>Qualidade</td>\r\n<td style=\"text-align:center;\">Percentual de campos extraídos do documento</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n<tr>\r\n<td>FaceMatch</td>\r\n<td style=\"text-align:center;\">Retorna o percentual de assertividade na comparação da foto entre o documento e a selfie.</td>\r\n<td style=\"text-align:center;\">String</td>\r\n</tr>\r\n<tr>\r\n</tbody>\r\n</table>\r\n\r\n\n\n## CIN Verso \n\n**CIN Verso**<table style=\"width:auto; height: 590px;\">\r\n 	<thead>\r\n<tr>\r\n <td style=\"width:121px\"><strong>Campo</strong></td>\r\n	<td style=\"width:278px; text-align: center;\"><strong>Descrição</strong></td>\r\n	<td style=\"width:121px; text-align: center;\"><strong>Tipo</strong></td>\r\n</tr>\r\n	</thead>\r\n<tbody>\r\n<tr>\r\n<td>TipoArquivo</td>\r\n	<td style=\"text-align: center;\">Número identificador do Documento</td>\r\n	<td style=\"text-align: center;\">Inteiro</td>\r\n	</tr>\r\n<tr>\r\n<td>NomeTipoArquivo</td>\r\n	<td style=\"text-align: center;\">Nome identificador do Documento</td>\r\n	<td style=\"text-align: center;\">String</td>\r\n 	</tr>\r\n<tr>\r\n<tr>\r\n<td>FolhaInteira</td>\r\n	<td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n	 <td style=\"text-align: center;\">Boolean</td>\r\n	 </tr>\r\n<tr>\r\n<td>VersaoDocumento</td>\r\n	 <td style=\"text-align: center;\">Se marcado identifica se o documento ocupa a folha inteira\t</td>\r\n	<td style=\"text-align: center;\">Boolean</td>\r\n</tr>\r\n	<tr>\r\n<td>PossuiAssinatura</td>\r\n	<td style=\"text-align: center;\">Se marcado identifica que o documento possui assinatura\t\t</td>\r\n 	<td style=\"text-align: center;\">Boolean</td>\r\n	</tr>\r\n<tr>\r\n<td>CamposManuscritos</td>\r\n	<td style=\"text-align: center;\">Se marcado identifica que o documento possui campos manuscritos</td>\r\n	<td style=\"text-align: center;\">Boolean</td>\r\n	</tr>\r\n<tr>\r\n<td>ImagemColorida</td>\r\n	<td style=\"text-align: center;\">Se marcado identifica que a imagem é colorida</td>\r\n	<td style=\"text-align: center;\">Boolean</td>\r\n	</tr>\r\n<tr>\r\n<td>ImagemRotacionada</td>\r\n	<td style=\"text-align: center;\">Se marcado identifica se a imagem está rotacionada</td>\r\n	<td style=\"text-align: center;\">Boolean</td>\r\n	</tr>\r\n<tr>\r\n<td>Assertividade</td>\r\n	<td style=\"text-align: center;\">Retorno da rede neural de confiança de que a imagem é realmente aquele documento.</td>\r\n	<td style=\"text-align: center;\">String</td>\r\n	</tr>\r\n<tr>\r\n<td>TipoRGTexto</td>\r\n	<td style=\"text-align: center;\"> </td>\r\n	<td style=\"text-align: center;\">String</td>\r\n	</tr>\r\n<tr>\r\n<td>LocalTexto</td>\r\n	<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o local de emissão </td>\r\n	<td style=\"text-align: center;\">String</td>\r\	</tr>\r\n<tr>\r\n<td>DataEmissaoTexto</td>\r\n	<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o a data de emissão </td>\r\n	<td style=\"text-align: center;\">String</td>\r\n	</tr>\r\n<tr>\r\n<td>FiliacaoTexto</td>\r\n	<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a filiação (Nome pai e mãe)\t </td>\r\n	<td style=\"text-align: center;\">String</td>\r\n	</tr>\r\n<tr>\r\n<td>OrgaoExpedidorTexto</td>\r\n	<td style=\"text-align: center;\">Retorno da extração OCR - Identifica o órgão expedidor do documento</td>\r\n	<td style=\"text-align: center;\">String</td>\r\n	</tr>\r\n<tr>\r\n<td>Filiacao1Texto</td>\r\n	<td style=\"text-align: center;\"> Retorno da extração OCR - Identifica a filiação 1</td>\r\n	<td style=\"text-align: center;\">String</td>\r\n	</tr>\r\n<tr>\r\n<td>Filiacao2Texto</td>\r\n	<td style=\"text-align: center;\">Retorno da extração OCR - Identifica a filiação 2</td>\r\n	<td style=\"text-align: center;\">String</td>\r\n	</tr>\r\n<tr>\r\n<td>Qualidade</td>\r\n	<td style=\"text-align: center;\">Percentual de campos extraídos do documento</td>\r\n	<td style=\"text-align: center;\">String</td>\r\n</tr>\r\n	</table>\r\n\r\n\n\n# Exemplos de retorno \n\n## RG\n\n<pre class=\"highlight\"><code>{\n \"TipoArquivo\":104, \n \"NomeTipoArquivo\":\"Identificação Pessoal\",\n \"FolhaInteira\":false,\n \"VersaoDocumento\":null,\n \"PossuiAssinatura\":null,\n \"CamposPreenchidos\":null,\n \"CamposManuscritos\":null,\n \"ImagemColorida\":null,\n \"ImagemRotacionada\":true,\n \"Metadados\":{\n \"Assertividade\":\"0,9999354\",\n \"RegistroTexto\":\"999.999.999\",\n \"ExpedicaoTexto\":\"01/NOV/2004\",\n \"NomeTexto\":\"FULANO DA SILVA\",\n \"NomePaiTexto\":\"PAI DO FULANO DA SILVA\",\n \"NomeMaeTexto\":\"MAE DO FULANO DA SILVA\",\n \"NaturalidadeTexto\":\"BELO HORIOZONTE-MG\",\n \"DataNascimentoTexto\":\"16/OUT/1957\",\n \"OrigemTexto\":\"CAS. LV-8 FLS-189\",\n \"ViaTexto\":\"0\"\n },\n \"Campos\":null,\n \"Indices\":null,\n \"ArquivosRetorno\":[]\n}</code></pre>\n\n## CNH\n\n<pre class=\"highlight\"><code>{\n \"TipoArquivo\":105, \n \"NomeTipoArquivo\":\"CNH Frente\",\n \"FolhaInteira\":false,\n \"VersaoDocumento\":null,\n \"PossuiAssinatura\":null,\n \"CamposPreenchidos\":null,\n \"CamposManuscritos\":null,\n \"ImagemColorida\":null,\n \"ImagemRotacionada\":true,\n \"Metadados\":{\n \"Assertividade\":\"0,9988832\",\n \"NomeTexto\":\"FULANO DA SILVA\",\n \"IdentidadeTexto\":\"9999999 SSP/MG\",\n \"CPFTexto\":\"999.999.999-99\",\n \"DataNascimentoTexto\":\"16/03/1959\",\n \"NomePaiTexto\":\"PAI DO FULANO DA SILVA\",\n \"NomeMaeTexto\":\"MAE DO FULANO DA SILVA\",\n \"RegistroTexto\":\"09999999999\",\n \"ValidadeTexto\":\"03/04/2023\",\n \"PrimeiraHabilitacaoTexto\":\"09/10/1997\",\n \"ObservacaoTexto\":\"\",\n \"DataEmissaoTexto\":\"04/04/2018\",\n \"LocalTexto\":\"FRANCA SP\"\n },\n \"Campos\":null,\n \"Indices\":null,\n \"ArquivosRetorno\":[]\n}</code></pre>\n\n## DNI\n\n<pre class=\"highlight\"><code>{\n \"TipoArquivo\":104, \n \"NomeTipoArquivo\":\"DNI\",\n \"FolhaInteira\":false,\n \"VersaoDocumento\":null,\n \"PossuiAssinatura\":null,\n \"CamposPreenchidos\":null,\n \"CamposManuscritos\":null,\n \"ImagemColorida\":null,\n \"ImagemRotacionada\":true,\n \"Metadados\":{\n \"Assertividade\":\"0,9944154\",\n \"TipoRGTexto\":\"MODELO NOVO\",\n \"EstadoTexto\":\"SP\",\n \"NomeTexto\":\"FULANO DA SILVA\",\n \"NomePaiTexto\":\"PAI DO FULANO DA SILVA\",\n \"NomeMaeTexto\":\"MAE DO FULANO DA SILVA\",\n \"DataNascimentoTexto\": \"13/07/1960\",\n \"OrgaoExpedidorTexto\":\"SSP-SP\",\n \"NaturalidadeTexto\": \"MARILENA - PR\"\n \"CPFTexto\":\"999999999/99\",\n \"RegistroTexto\":\"9.999.999-99\",\n \"ExpedicaoTexto\":\"13/12/2019\",\n \"RegistroCivilTexto\":\"CC:LV.B99\",\n \"TituloEleitorTexto\":\"000999999999999\",\n \"CNSTexto\":\"999999999999999\",\n \"ViaTexto\":\"2 VIA\",\n \"CNHTexto\":\"00009999999999\",\n \"CertificadoMilitarTexto\":\"0999999999\",\n \"IdentidadeProfissionalTexto\":\"99999\"\n },\n \"Campos\":null,\n \"Indices\":null,\n \"ArquivosRetorno\":[]\n}</code></pre>\n\n## CIN\n\n<pre class=\"highlight\"><code>{\n \"TipoArquivo\":104, \n \"NomeTipoArquivo\":\"CIN\",\n \"FolhaInteira\":false,\n \"VersaoDocumento\":null,\n \"PossuiAssinatura\":null,\n \"CamposPreenchidos\":null,\n \"CamposManuscritos\":null,\n \"ImagemColorida\":null,\n \"ImagemRotacionada\":true,\n \"Metadados\":{\n \"Assertividade\":\"0,9944154\",\n \"NomeTexto\":\"FULANO DA SILVA\",\n \"CPFTexto\":\"999999999/99\",\n \"Filiacao1Texto\":\"Filiacao1 DO FULANO DA SILVA\",\n \"Filiacao2Texto\":\"Filiacao2 DO FULANO DA SILVA\",\n \"NascimentoTexto\": \"13/07/1960\",\n \"NaturalidadeTexto\": \"MARILENA - PR\"\n \"NacionalidadeTexto\": \"BR\"\n \"EstadoTexto\":\"SP\",\n \"OrgaoTexto\":\"SECRETARIA DE SEGURANÇA PÚBLICA\",\n \"ImpossibilidadeDeAssinar\":\"NÃO\",\n \"AlfabetizadoTexto\":\"SIM\",\n \"Qualidade\":\"100\"\n \"Facematch\":\"0\"\n},\n \"Campos\":null,\n \"Indices\":null,\n \"ArquivosRetorno\":[]\n}</code></pre>\n\n",         
-         "x-displayName":"Dados Estruturados"
-      },
-      {
-         "name":"ParamentrosEntrada",
-         "description":"Em certos processamentos pontuais no Atomics ou VAR, um arquivo de parâmetros pode ser enviado no momento da inclusão. \n\nExemplos: \n\n\n\n- Pré-Tipificação de Documentos\n\n## Pré-Tipificação de Documentos\n\nPara que os documentos de uma solicitação possam ser tipificados de forma manual (pré-tipificados) um json deve ser enviado no momento da inclusão da solicitação informando o nome do arquivo e o tipo a ser tipificado.\n\n<pre class=\"highlight\"><code>[\n {\"NomeArquivo\":\"Arquivo1.jpg\",\"NomeTipo\":\"RG Frente\"},\n {\"NomeArquivo\":\"Arquivo2.jpg\",\"NomeTipo\":\"RG Verso\"},\n {\"NomeArquivo\":\"Arquivo3.jpg\",\"NomeTipo\":\"Selfie\"}\n]</code></pre>",         
-         "x-displayName":"Parâmetros de Entrada"
-      },
-      {
-         "name":"Postman",
-         "description":"O Postman é uma solução para consultas de API, permitindo analisar de ponta-a-ponta os retornos.\n\nO link para o download é https://www.getpostman.com/downloads/ \n\nSiga as instruções de uso após o download e a instalação do software:\n\nAntes de começar a configuração no Postman, certifique-se que você possui o arquivo JSON para importar as configurações. Caso não possua, contate a equipe do Suporte ou seu Analista de Negócio responsável para adquirir o mesmo \n\n## Importação \nPara importar o arquivo de configuração, basta abrir o Postman e clicar em Import.\n\n<img src=\"https://simply-atomics.github.io/imagem1.jpg\" alt=\"\"><img src=\"https://simply-atomics.github.io/imagem2.jpg\" alt=\"\">Após Importado, aparecerá na aba do canto esquerdo a pasta com as configurações definidas. Ao clicar na aba, haverá quatro opções \n\n\n\n- Login\n\n- Tipificacao – Incluir\n\n- Tipificacao – Consulta\n\n- RetornarArquivos\n\n## Login \n\nPara logar, coloque seu login e senha no Body \n\n<img src=\"https://simply-atomics.github.io/imagem4.jpg\" alt=\"\">\n\n<pre>Aguardar a resposta “200 OK”</pre> \n\n## Tipificação - Incluir\n\nInforme os dados da solicitação ( arquivos, perfil, código legado ) e clique em <code>Send</code>\n\n<img src=\"https://simply-atomics.github.io/imagem6.jpg\" alt=\"\">\n\nO retorno ficará salvo em uma variável, chamada solicitacao que será utilizada na próxima etapa.\n\n## Tipificação - Consulta \n\nPara consultar o retorno já tipificado (executado no passo anterior) basta clicar em <code>Send</code>.\n\n<img src=\"https://simply-atomics.github.io/imagem8.jpg\" alt=\"\">\n\nEm Response é importante verificar o Status da tipificação, **Status = 1 para tipificado** e **Status = 0 para não tipificado**\n\n**Observações:** \n\nPara consultar documentos já tipificados, basta ingressar em Login (Etapa 1) e Solicitacao (Etapa 3) porém é necessário alterar a url de retorno.\n\nUrl de retorno: https://atomics-hom.simply.com.br/api/v1/tipificacao/{{solicitacao}} \n\nPor exemplo, para verificar o retorno do código de fila 7103950 basta substituir {{solicitacao}} pelo código(7103950). Sendo assim a url https://atomics-hom.simply.com.br/api/v1/tipificacao/7103950 \n\n## Retorno de arquivos \n\nEste campo é utilizado, para pegar o retorno dos documentos, como no caso do IN100. \n\nObserve que após ao “codArquivo=” devera ser inserido o código de solicitação gerado na aba Tipificação - Consulta. \n\n<img src=\"https://simply-atomics.github.io/imagem9.jpg\" alt=\"\">\n\n## Informações Importantes \n\nNo POSTMAN para envio da tipificação apenas os campos **CodigoLegado** e **PerfilTipificacao** são obrigatórios.\n\n**CodigoLegado** - Campo aberto, para controle com relação a alguma informação de outro sistema que deseje vincular a solicitação.\n\n**PerfilTipificacao** - Você deve enviar um perfil que seja válido e previamente configurado com os documentos que serão enviados. Esse perfil deve ser pré-configurado no administrador do Atomics.\n\nVocê deve fazer um pooling verificando o campo Status. Sobre o campo ArquivoRetorno, ele só é retornado em algumas situações pré-configuradas no seu administrador \n\nO CodigoArquivo, também só é informado mediante algumas configurações no seu perfil.\n\n",
-         "x-displayName":"Postman"
-      },
-      {
-         "name":"Documentos Globais",
-         "description":"Está é a lista de documentos globais retornados pelo Atomics \n\n<table style=\"width:auto; height: 590px;\">\r\n <thead>\r\n<tr>\r\n <td style=\"width:121px; text-align: center;\"><strong>Código Documento</strong></td>\r\n<td style=\"width:413px; text-align: center;\"><strong>Descrição</strong></td>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n<td>-1</td>\r\n<td style=\"text-align: center;\">Não Identificado</td>\r\n</tr>\r\n<tr>\r\n<td>4</td>\r\n<td style=\"text-align: center;\">Identificação Pessoal</td>\r\n</tr>\r\n<tr>\r\n<td>5</td>\r\n<td style=\"text-align: center;\">Comprovante Residência</td>\r\n</tr>\r\n<tr>\r\n<td>7</td>\r\n<td style=\"text-align: center;\">Extrato de Pagamento</td>\r\n</tr>\r\n<tr>\r\n<td>8</td>\r\n<td style=\"text-align: center;\">CPF</td>\r\n</tr>\r\n<tr>\r\n<td>9</td>\r\n<td style=\"text-align: center;\">Duplicata</td>\r\n</tr>\r\n<tr>\r\n<td>10</td>\r\n<td style=\"text-align: center;\">Formulário Padrão</td>\r\n</tr>\r\n<tr>\r\n<td>11</td>\r\n<td style=\"text-align: center;\">Driver License</td>\r\n</tr>\r\n<tr>\r\n<td>12</td>\r\n<td style=\"text-align: center;\">Social Security Number</td>\r\n</tr>\r\n<tr>\r\n<td>14</td>\r\n<td style=\"text-align: center;\">Extrato Bancário</td>\r\n</tr>\r\n<tr>\r\n<td>6</td>\r\n<td style=\"text-align: center;\">Declaração Residência</td>\r\n</tr>\r\n<tr>\r\n<td>44</td>\r\n<td style=\"text-align: center;\">Carta de Concessão INSS</td>\r\n</tr>\r\n<tr>\r\n<td>100</td>\r\n<td style=\"text-align: center;\">Boleto Bancário</td>\r\n</tr>\r\n<tr>\r\n<td>101</td>\r\n<td style=\"text-align: center;\">Documento com Foto</td>\r\n</tr>\r\n<tr>\r\n<td>102</td>\r\n<td style=\"text-align: center;\">CRLV</td>\r\n</tr>\r\n<tr>\r\n<td>103</td>\r\n<td style=\"text-align: center;\">RG/DNI/CIN Frente </td>\r\n</tr>\r\n<tr>\r\n<td>104</td>\r\n<td style=\"text-align: center;\">RG/DNI/CIN Verso</td>\r\n</tr>\r\n<tr>\r\n<td>105</td>\r\n<td style=\"text-align: center;\">CNH</td>\r\n</tr>\r\n<tr>\r\n<td>106</td>\r\n<td style=\"text-align: center;\">Selfie</td>\r\n</tr>\r\n<tr>\r\n<td>107</td>\r\n<td style=\"text-align: center;\">Documento Classe</td>\r\n</tr>\r\n<tr>\r\n<td>108</td>\r\n<td style=\"text-align: center;\">CREA</td>\r\n</tr>\r\n<tr>\r\n<td>109</td>\r\n<td style=\"text-align: center;\">CRO</td>\r\n</tr>\r\n<tr>\r\n<td>110</td>\r\n<td style=\"text-align: center;\">CRM</td>\r\n</tr>\r\n<tr>\r\n<td>111</td>\r\n<td style=\"text-align: center;\">OAB</td>\r\n</tr>\r\n<tr>\r\n<td>112</td>\r\n<td style=\"text-align: center;\">Extrato FGTS</td>\r\n</tr>\r\n<tr>\r\n<td>113</td>\r\n<td style=\"text-align: center;\">Certidao de Nascimento</td>\r\n</tr>\r\n<tr>\r\n<td>114</td>\r\n<td style=\"text-align: center;\">Carteira Exercito Verso</td>\r\n</tr>\r\n<tr>\r\n<td>115</td>\r\n<td style=\"text-align: center;\">Carteira Exercito Frente</td>\r\n</tr>\r\n<tr>\r\n<td>116</td>\r\n<td style=\"text-align: center;\">Arquivo de Áudio</td>\r\n</tr>\r\n<tr>\r\n<td>117</td>\r\n<td style=\"text-align: center;\">Certidão de Casamento</td>\r\n</tr>\r\n<tr>\r\n<td>118</td>\r\n<td style=\"text-align: center;\">Contrato Social</td>\r\n</tr>\r\n<tr>\r\n<td>119</td>\r\n<td style=\"text-align: center;\">Cartão CNPJ</td>\r\n</tr>\r\n<tr>\r\n<td>120</td>\r\n<td style=\"text-align: center;\">Certidão de Óbito</td>\r\n</tr>\r\n<tr>\r\n<td>0</td>\r\n<td style=\"text-align: center;\">Pagina em Branco</td>\r\n</tr>\r\n<tr>\r\n<td>121</td>\r\n<td style=\"text-align: center;\">CNH Verso</td>\r\n</tr>\r\n<tr>\r\n<td>122</td>\r\n<td style=\"text-align: center;\">Certificado Digital</td>\r\n</tr>\r\n<tr>\r\n<td>300</td>\r\n<td style=\"text-align: center;\">Documento Classe Verso</td>\r\n</tr>\r\n<tr>\r\n<td>301</td>\r\n<td style=\"text-align: center;\">CREA Verso</td>\r\n</tr>\r\n<tr>\r\n<td>302</td>\r\n<td style=\"text-align: center;\">CRO Verso</td>\r\n</tr>\r\n<tr>\r\n<td>303</td>\r\n<td style=\"text-align: center;\">CRM Verso</td>\r\n</tr>\r\n<tr>\r\n<td>304</td>\r\n<td style=\"text-align: center;\">OAB Verso</td>\r\n</tr>\r\n<tr>\r\n<td>305</td>\r\n<td style=\"text-align: center;\">CFE</td>\r\n</tr>\r\n<tr>\r\n<td>306</td>\r\n<td style=\"text-align: center;\">CFE Verso</td>\r\n</tr>\r\n<tr>\r\n<td>307</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda</td>\r\n</tr>\r\n<tr>\r\n<td>308</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda (Recibo </td>\r\n</tr>\r\n<tr>\r\n<td>309</td>\r\n<td style=\"text-align: center;\">CRC</td>\r\n</tr>\r\n<tr>\r\n<td>310</td>\r\n<td style=\"text-align: center;\">CRC Verso</td>\r\n</tr>\r\n<tr>\r\n<td>311</td>\r\n<td style=\"text-align: center;\">Declaração de Imposto de Renda (Resumo)</td>\r\n</tr>\r\n<tr>\r\n<td>312</td>\r\n<td style=\"text-align: center;\">Comprovante de Pagamento</td>\r\n</tr>\r\n<tr>\r\n<td>315</td>\r\n<td style=\"text-align: center;\">Cartão Assinatura Digital</td>\r\n</tr>\r\n<tr>\r\n<td>145</td>\r\n<td style=\"text-align: center;\">Passaporte Brasileiro</td>\r\n</tr>\r\n<tr>\r\n<td>146</td>\r\n<td style=\"text-align: center;\">Identidade Polícia Militar</td>\r\n</tr>\r\n<tr>\r\n<td>319</td>\r\n<td style=\"text-align: center;\">Identidade Polícia Militar Verso</td>\r\n</tr>\r\n<tr>\r\n<td>127</td>\r\n<td style=\"text-align: center;\">RNE</td>\r\n</tr>\r\n<tr>\r\n<td>347</td>\r\n<td style=\"text-align: center;\">RNE Verso</td>\r\n</tr>\r\n<tr>\r\n<td>348</td>\r\n<td style=\"text-align: center;\">Cheque Frente</td>\r\n</tr>\r\n<tr>\r\n<td>995</td>\r\n<td style=\"text-align: center;\">DPVAT</td>\r\n</tr>\r\n<tr>\r\n<td>997</td>\r\n<td style=\"text-align: center;\">CRV</td>\r\n</tr>\r\n<tr>\r\n<td>349</td>\r\n<td style=\"text-align: center;\">Hodômetro</td>\r\n</tr>\r\n<tr>\r\n<td>980</td>\r\n<td style=\"text-align: center;\">DUT</td>\r\n</tr>\r\n<tr>\r\n<td>1114</td>\r\n<td style=\"text-align: center;\">Carteira Marinha Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1115</td>\r\n<td style=\"text-align: center;\">Carteira Marinha Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1116</td>\r\n<td style=\"text-align: center;\">Carteira Aeronautica Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1117</td>\r\n<td style=\"text-align: center;\">Carteira Aeronautica Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1118</td>\r\n<td style=\"text-align: center;\">RNM</td>\r\n</tr>\r\n<tr>\r\n<td>1119</td>\r\n<td style=\"text-align: center;\">RNM Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1120</td>\r\n<td style=\"text-align: center;\">Coren</td>\r\n</tr>\r\n<tr>\r\n<td>1125</td>\r\n<td style=\"text-align: center;\">IPTU</td>\r\n</tr>\r\n<tr>\r\n<td>1130</td>\r\n<td style=\"text-align: center;\">CTPS Frente</td>\r\n</tr>\r\n<tr>\r\n<td>1135</td>\r\n<td style=\"text-align: center;\">CTPS Verso</td>\r\n</tr>\r\n<tr>\r\n<td>1800</td>\r\n<td style=\"text-align: center;\">Declaração de Débitos e Créditos (DCTF)</td>\r\n</tr>\r\n<tr>\r\n<td>1900</td>\r\n<td style=\"text-align: center;\">Declaração Imposto de Renda ( DAS )</td>\r\n</tr>\r\n<tr>\r\n<td>2100</td>\r\n<td style=\"text-align: center;\">Painel Corretor</td>\r\n</tr>\r\n<tr>\r\n<td>3150</td>\r\n<td style=\"text-align: center;\">Cartão Assinatura</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n\n\n",
-      },
-      {
-         "name":"InclusaoAssincrona",
-		 "description": "### 📄 Envio de Documentos – Processamento Assíncrono\n\nUtilize este procedimento para realizar o **envio assíncrono de documentos** ao **Atomics**.\n\nO fluxo é composto por **3 etapas principais**:\n\n1. Criação da solicitação de tipificação  \n2. Envio dos documentos  \n3. Início do processamento\n\n---\n\n## 1️⃣ Criar solicitação de tipificação\n\nRealize um **POST** no endpoint abaixo para criar a solicitação:\n\n**Endpoint**  \n`POST /api/v1/tipificacao`\n\n[Ver documentação do endpoint](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_Post)\n\n### Parâmetros de entrada\n\n| Campo | Tipo | Obrigatório | Descrição |\n|------|------|-------------|-----------|\n| EnvioParcial | boolean | Não | Quando `true`, indica que os documentos serão enviados de forma assíncrona. |\n| CodigoLegado | string | **Sim** | Identificador do sistema legado que está realizando a solicitação. |\n| ExtrairDados | boolean | Não | Define se o Atomics deve extrair e retornar os dados dos documentos processados. |\n| PerfilTipificacao | string | Não | Define o perfil de tipificação a ser utilizado. Esse valor é fornecido pela Simply conforme os perfis configurados para o cliente. |\n\n### Exemplo de payload\n\n```json\n{\n  \"EnvioParcial\": true,\n  \"CodigoLegado\": \"{codigo}\",\n  \"ExtrairDados\": true,\n  \"PerfilTipificacao\": \"{perfil}\"\n}\n```\n\n**Importante**  \nAo definir `EnvioParcial = true`, o Atomics irá **aguardar o envio dos documentos** antes de iniciar o processamento.\n\n---\n\n## 2️⃣ Envio dos documentos\n\nApós a criação da solicitação, os documentos devem ser enviados **individualmente**, utilizando o `codigo_de_solicitacao` retornado no passo anterior.\n\n### Opções de envio\n\n- **Envio de arquivos em bytes**  \n`POST /api/v1/tipificacao/incluirarquivos/{codigo_de_solicitacao}`  \n[Ver endpoint](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IncluirArquivos)\n\n- **Envio de arquivos em Base64**  \n`POST /api/v1/tipificacao/incluirarquivos/{codigo_de_solicitacao}`  \n[Ver endpoint](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IncluirArquivosBase64)\n\nRepita essa etapa até que **todos os documentos** da solicitação tenham sido enviados.\n\n---\n\n## 3️⃣ Iniciar o processamento\n\nApós o envio de todos os arquivos, é necessário informar ao Atomics que o processamento pode ser iniciado.\n\n**Endpoint**  \n`POST /api/v1/tipificacao/iniciarprocessamento/{codigo_de_solicitacao}`\n\n[Ver endpoint](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IniciarProcessamento)\n\n---\n\n## ✅ Resultado\n\nApós a chamada de início de processamento, o **Atomics iniciará o processamento da solicitação de forma assíncrona**, conforme os parâmetros informados.",
-         "x-displayName":"Inclusão Assíncrona"
-      }
-   ],
-   "x-tagGroups":[
-      {
-         "name":"Rotas da aplicação",
-         "tags":[
-            "Autenticacao",
-			"Atomics Sincrono",
-			"Atomics Assincrono",
-			"Atomics IDOnline",
-			"Operacional",
-            "InclusaoAssincrona"
-         ]
-      },
-      {
-         "name":"Informações Adicionais",
-         "tags":[
-            "DadosEstruturados",
-            "ParamentrosEntrada",
-            "Postman",
-            "Documentos Globais"
-         ]
-      }
-   ]
+	"swagger": "2.0",
+	"info": {
+		"version": "v1",
+		"title": "Atomics WebAPI - Documentação de Integração",
+		"description": "# Introdução\nServiço de integração RESTful para o sistema Atomics.\n\r## Topologia e Arquitetura\nO Atomics é uma plataforma capaz realizar a análise eletrônica dos documentos, reduzindo drasticamente o tempo de análise. Dentre suas funcionalidades, podemos destacar:\n\r - Classificação eletrônica (tipificação);\r - Verificação da Assinatura;\r - Validação de Preenchimento dos campos;\r - Extração de informações (OCR 2° camada e estruturado)\r - Facematch\r - Prova de vida\r - IDonline para preenchimento online de formulários \n\nSob a ótica da segurança da informação, uma das grandes vantagens do Atomics é garantir que os dados serão analisados por sistemas (eletronicamente), evitando que o ser humano tenha acesso, por exemplo, à documentação e dados sensíveis do cliente – consequentemente evitando fraudes internas e utilização indesejada de informações.\n\nBenefícios\n\n\r - Aumento da Produtividade através da validação eletrônica dos documentos, conferências, comparações e cálculos automáticos.\r - Agilidade para aprovar uma proposta do cliente com velocidade e segurança.\r - Redução do trabalho manual da sua equipe. Eles irão tratar somente as exceções, e a tecnologia cuidará das atividades operacionais.\r - Redução de risco ao analisar eletronicamente 100% dos documentos enviados, ao invés da utilização de uma amostragem.\r - Redução de custo ao reduzir o esforço da formalização e os erros em decorrência do alto volume\r - Escalabilidade para suportar os picos de produção e a sazonalidade da operação\n\n## Hospedagem\nA plataforma Atomics é hospedada em nuvem utilizando a infraestrutura Cloud Computing. Nesta, utilizamos exclusivamente o Datacenter localizado no Brasil (São Paulo). Desta forma atendemos à exigência do Banco Central do Brasil no que se referente ao processamento dentro das fronteiras nacionais. Por característica, o Atomics é uma aplicação Simply com altíssimo consumo de processamento (CPU) e o demanda constante de treinamento da sua rede neural. Desta forma, os clientes Simply se beneficiam da escalabilidade proporcionada pela infraestrutura em nuvem. Como exemplo prático, em determinados horários de pico, demandamos mais de 200 servidores simultaneamente para atender ao volume de documentos recebidos de nossos clientes.\n\n  Em relação ao Banco de Dados, o utilizamos como serviço, garantindo assim a aplicação das melhores práticas de gestão (backups, atualizações de segurança, etc.) e mantendo nosso foco na evolução dos algoritmos e técnicas necessárias para a constante evolução do produto Atomics.\n\n## Comunicação\nA comunicação de dados entre nossos clientes (Bancos e demais empresas) e a Simply (Atomics), ocorre exclusivamente através de canal criptografado (HTTP/SSL – Security Socket Layer), garantindo o sigilo das informações trafegadas.\n\n  Através de um token, garantimos a autenticação do usuário/senha que, uma vez autorizado, nos envia lotes de documentos (imagens) para processamento. Este token possui um prazo de expiração, exigindo nova autenticação após determinado tempo.\n\nAlguns clientes utilizam adicionalmente a validação de IP de origem. Desta forma, nossa aplicação apenas aceita se comunicar com os endereços IP previamente cadastrados para aquele determinado cliente.\n\n\n## Processamento e Scale\nAtravés de um algoritmo e serviço desenvolvido pela própria Simply, conseguimos prever o volume de servidores necessários para o processamento da fila de documentos/requisições, realizando assim, automaticamente, o scale up (aumento) ou scale down (redução) do número de instâncias de máquinas virtuais necessárias.\n\nCada um destes servidores (máquinas virtuais) envolvidas no scale, possui a característica stateless, não armazenando nenhuma informação, mas sim processando aquela demanda que lhe é requisitada. Esta característica é necessária para garantir que novas máquinas possam ser iniciadas e extinguidas sem nenhum impacto para a aplicação Atomics.\n\n## Armazenamento\nOs clientes da plataforma Atomics optam por armazenar (ou não) os documentos em nuvem com a Simply.\n\nCaso a opção seja pelo não armazenamento, todo documento recebido eletronicamente pela Simply (enviado através do canal criptografado de comunicação), é imediatamente excluído após seu processamento. Desta forma, nenhuma cópia (original ou de segurança), será mantida pela Simply.\n\nCaso o cliente deseje armazenar seus documentos em nuvem com a Simply, disponibilizamos a opção de criptografia deste container de dados. Desta forma, apenas o cliente (de posse de sua chave), terá acesso à cópia dos documentos digitalizados. A opção de armazenamento em nuvem tem sido utilizada como cópia/contingência, inclusive para cumprir exigências regulatórias do Banco Central do Brasil.\n\n\n## Ambientes\nNa lista abaixo estão as URIs utilizadas nas transações do webservice. Essas URIs serão utilizadas para realizar envios e consultas de solicitações.\n\nURIs Produção\n1. URI Login\r - https://{endereco_producao}/Token\n2. URI Inclusão Solicitação\r - https://{endereco_producao}/api/v1/tipificacao\n3. URI Consulta Solicitação\r - https://{endereco_producao}/api/v1/tipificacao/{Solicitacao}\n4. URI Retorno de Arquivos\r - https://{endereco_producao}/api/v1/tipificacao/retornararquivo/{Solicitacao}?codigoArquivo={CodigoArquivo}\n\nURIs Homologação\n1. URI Login\r - https://{endereco_homologacao}/Token\n2. URI Inclusão Solicitação\r - https://{endereco_homologacao}/api/v1/tipificacao\n3. URI Consulta Solicitação\r - https://{endereco_homologacao}/api/v1/tipificacao/{Solicitacao}\n4. URI Retorno de Arquivos\r - https://{endereco_homologacao}/api/v1/tipificacao/retornararquivo/{Solicitacao}?codigoArquivo={CodigoArquivo}\n\n",
+		"contact": {
+			"name": "Simply",
+			"email": "suporte@simply.com.br"
+		},
+		"x-logo": {
+			"url": "https://simply-atomics.github.io/logo-branca.png",
+			"altText": "Logo",
+			"backgroundColor": "#0091ea"
+		}
+	},
+	"host": "localhost:8080",
+	"basePath": "/AtomicsWebAPI",
+	"schemes": [
+		"http"
+	],
+	"paths": {
+		"/token": {
+			"post": {
+				"tags": [
+					"Autenticacao"
+				],
+				"summary": "Efetuando Login",
+				"description": "Para acesso ao Atomics, é necessário efetuar o login informando o usuário e senha.",
+				"operationId": "Token",
+				"consumes": [
+					"application/json",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"required": [
+								"username",
+								"password"
+							],
+							"type": "object",
+							"properties": {
+								"username": {
+									"description": "informe_seu_usuario",
+									"type": "string"
+								},
+								"password": {
+									"description": "informe_sua_senha",
+									"type": "string"
+								},
+								"grant_type": {
+									"description": "password",
+									"type": "string"
+								}
+							}
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"access_token": {
+									"type": "string",
+									"example": "token_de_acesso"
+								},
+								"token_type": {
+									"type": "String",
+									"example": "bearer"
+								},
+								"expires_in": {
+									"type": "string",
+									"example": "86399"
+								},
+								"userName": {
+									"type": "string",
+									"example": "nome_usuario"
+								},
+								".issued": {
+									"format": "date-time",
+									"type": "string",
+									"example": "Tue, 17 Apr 2018 18:48:10 GMT"
+								},
+								".expires": {
+									"format": "date-time",
+									"type": "string",
+									"example": "Wed, 18 Apr 2018 18:48:10 GMT"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Erro",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"error": {
+									"type": "string",
+									"example": "O usuario/senha informado não é válido."
+								},
+								"error_description": {
+									"type": "string",
+									"example": "O usuario/senha informado não é válido."
+								}
+							}
+						}
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "public static async Task LoginAtomics(string usuario, string senha)\n{\n  try\n   {\n    //recupera token de acesso\n    using (var client = new HttpClient\n    (new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.GZip | \n     DecompressionMethods.Deflate\n    }))\n    { \n      client.BaseAddress = new Uri(UrlBase);\n      var data = new Dictionary();\n      //adiciona os campos de usuário\n      data.Add(\"username\", usuario);\n      data.Add(\"password\", senha);\n      data.Add(\"grant_type\", \"password\");\n      FormUrlEncodedContent form = new FormUrlEncodedContent(data);\n      client.DefaultRequestHeaders.Add(\"Accept\", \"application/json\");\n      HttpResponseMessage resposta = await client.PostAsync(\"token\", form);\n      resposta.EnsureSuccessStatusCode();\n      string result2 = await resposta.Content.ReadAsStringAsync();\n      JObject objeto = JObject.Parse(result2);\n      BearerToken = objeto[\"access_token\"].ToString();\n    }\n  }\n  catch (Exception e)\n  { \n    //Sua excessão\n }\n}"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "$curl = curl_init(); \n\ncurl_setopt_array($curl, array(\n\t\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",   \n\tCURLOPT_MAXREDIRS => 10,  \n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,  \n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,  \n\tCURLOPT_CUSTOMREQUEST => \"POST\",       \n\tCURLOPT_POSTFIELDS => \"username = XXXXXXXX & password = XXXXXXXX & grant_type = password\",    \n\tCURLOPT_HTTPHEADER => array(      \n\t\t\"Accept: application/json\",   \n\t\t\"Content-Type: application/x-www-form-urlencoded\"   \n\t), \n));\n\n$response = curl_exec($curl);    \ncurl_close($curl);   \n$token_simply = json_decode($response);    \n$token_simply__ = \"\";\n\nif (isset($token_simply->access_token)) {    \n\t$token_simply__ = $token_simply->access_token;  \n}\n\nelse if (isset($token_simply[\"access_token\"])) { \n\t$token_simply__ = $token_simply[\"access_token\"];   \n}"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "var request = require('request');\nvar options = {\n  'method': 'POST',\n  'url': 'URL_BASE',\n  'headers': {\n    'Accept': 'application/json',\n    'Content-Type': 'application/x-www-form-urlencoded'\n  },\n  form: {\n    'username': 'xxxxxxx',\n    'password': 'xxxxxxx',\n    'grant_type': 'password'\n  }\n};\n\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  var tokenJSON = JSON.parse(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/operacional/usuario": {
+			"post": {
+				"tags": [
+					"Operacional"
+				],
+				"summary": "Habilitar ou Desabilitar Usuário",
+				"description": "Utilize esse procedimento para gerenciar usuários\r\n<br /><br />\r\nNesse endpoint você pode realizar o gerenciamento de usuários no sistema",
+				"operationId": "Operacional_Post",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"responses": {
+					"200": {
+						"description": "Operação realizada com sucesso",
+						"schema": {
+							"type": "object"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na alteração do status do usuário."
+					}
+				}
+			}
+		},
+		"/api/v1/operacional/faturaFeatures": {
+			"get": {
+				"tags": [
+					"Operacional"
+				],
+				"summary": "Consultar Fatura Features",
+				"description": "Utilize esse procedimento para gerenciar consultar Features\r\n<br /><br />\r\nNesse endpoint você pode consultar os dados de uso da plataforma",
+				"operationId": "Operacional_GetFeatures",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"responses": {
+					"200": {
+						"description": "Operação realizada com sucesso",
+						"schema": {
+							"type": "object"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro ao retornar o relatório."
+					}
+				}
+			}
+		},
+		"/api/v1/operacional/faturaKitsPaginas": {
+			"get": {
+				"tags": [
+					"Operacional"
+				],
+				"summary": "Consultar Fatura Kits e Paginas",
+				"description": "Utilize esse procedimento para consultar Fatura Kits e Paginas\r\n<br /><br />\r\nNesse endpoint você pode consultar os dados de uso da plataforma",
+				"operationId": "Operacional_GetKitsPaginas",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"responses": {
+					"200": {
+						"description": "Operação realizada com sucesso",
+						"schema": {
+							"type": "object"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro ao retornar o relatório."
+					}
+				}
+			}
+		},
+		"/api/v1/tipificacao/retornararquivo/{codigo}": {
+			"get": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Download de Arquivos - Bytes",
+				"description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
+				"operationId": "Tipificacao_RetornarArquivo",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"description": "Codigo da solicitação",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					},
+					{
+						"name": "codigoArquivo",
+						"in": "query",
+						"description": "Codigo do arquivo a ser retornado",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "object"
+						}
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "\npublic static async Task<byte[]> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n      byte[] byteArray = await client.GetByteArrayAsync(\"api/v1/tipificacao/retornararquivo/\n      + codigoSolicitacao + \"?codigoArquivo = \" + codigoArquivo);\n      return byteArray;\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/tipificacao/retornarArquivoBase64/{codigo}": {
+			"get": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Download de Arquivos - Base64",
+				"description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
+				"operationId": "Tipificacao_RetornarArquivoJson",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"description": "Codigo da solicitação",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					},
+					{
+						"name": "codigoArquivo",
+						"in": "query",
+						"description": "Codigo do arquivo a ser retornado",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "object"
+						}
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "\npublic static async Task<dynamic> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n     string resposta = await client.GetStringAsync(\"api/v1/tipificacao/retornararquivoBase64/\n     + codigoSolicitacao + \"?codigoArquivo=\" + codigoArquivo);\n     dynamic retorno = resposta;\n    }\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/tipificacao/{codigo}": {
+			"get": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Consulta de Solicitação",
+				"description": "Utilize esse procedimento para consultar o retorno dos documentos enviados para tipificação.\r\n<br /><br />\r\nNesse endpoint você pode obter o retorno dos documentos enviados na solicitação e todas as informações referentes a eles (tipo do documento, \r\nOCR, validação e extração de dados, antifraude, validação de assinatura, dentre outros).",
+				"operationId": "Tipificacao_Get",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"description": "Código da solicitação gerado no momento da criação.",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					}
+				],
+				"responses": {
+					"401": {
+						"description": "Usuário não logado, ou não possui acesso à solicitação informada."
+					},
+					"404": {
+						"description": "Solicitação não encontrada."
+					},
+					"200": {
+						"description": "Solicitação encontrada.",
+						"schema": {
+							"$ref": "#/definitions/RetornoSolicitacaoTipificacao"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "\npublic static async Task ConsultaSolicitacao(string codigoSolicitacao)\n{\n   try\n   {\n      if (BearerToken == null)\n         throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n      using (var client = new HttpClient(new HttpClientHandler { \n\t  AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n      {\n         client.BaseAddress = new Uri(UrlBase);\n         client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer\" + BearerToken);\n         string resposta = await client.GetStringAsync(\"api/v1/tipificacao/\" \n         + codigoSolicitacao);\n         dynamic retorno = JsonConvert.DeserializeObject(resposta);\n         return retorno;\n      }\n   }\n   catch (Exception e)\n   {\n      //Sua excessão\n   }\n   return null;\n}"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curl = curl_init();\n\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/tipificacao": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão Síncrona",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.\r\n<br /><br />",
+				"operationId": "Tipificacao_Post",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostTipificacao"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "public static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") {\ntry\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n          AutomaticDecompression = \n          DecompressionMethods.Deflate | DecompressionMethods.GZip}))\n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length), \n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacao\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}\n"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curlPost = curl_init();\n\n$arqs = array();\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 2\", \"mime\", \"Arquivo 2\"));\n\ncurl_setopt_array($curlPost, array(\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0],\n\t\t'arquivo[1]' => $arqs[1]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        },\n        'arquivo[1]': {\n            'value': fs.createReadStream('PATH ARQUIVO 2'),\n            'options': {\n                'filename': 'arquivo2.jpg',\n                'contentType': null\n            }\n        },\n        'PerfilTipificacao': 'XXXXX',\n        'ExtrairDados': 'true'\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/tipificacaoJson": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão Síncrona Json",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar todos os documentos enviados, de acordo com configurações, mapeamentos, parâmetros e perfis específicos de cada cliente.",
+				"operationId": "Tipificacao_PostJson",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostJSon"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},
+		"/api/v1/tipificacaoSync": {
+			"post": {
+				"tags": [
+					"Atomics Sincrono"
+				],
+				"summary": "Tipificação Síncrona",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar apenas documentos de RG e CNH e deve ser enviado 1 documento por solicitação.",
+				"operationId": "Tipificacao_PostSync",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostTipificacaoSync"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"$ref": "#/definitions/RetornoTipificacaoJsonSync"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "\npublic static async Task IncluiSolicitacao(string[] arquivos, string Legado = \"55\") \n{\n  try\n  {\n     if (BearerToken == null)\n        throw new Exception(\"Token não foi recuperado. Utilize o método de login.\");\n     using (var client = new HttpClient(new HttpClientHandler {\n     AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip})) \n     {\n        client.BaseAddress = new Uri(UrlBase);\n        MultipartFormDataContent form = new MultipartFormDataContent();\n        var camposEnviados = new Dictionary();\n\n        //cabeçalho de autorização\n        client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken);\n\n        //adiciona campos de entrada e \n        form.Add(new StringContent(codigoLegado), \"CodigoLegado\");\n\n        foreach (string arquivo in arquivos)\n        {\n           byte[] dados = File.ReadAllBytes(arquivo);\n           form.Add(new ByteArrayContent(dados, 0, dados.Length),\n           \"arquivo\", Path.GetFileName(arquivo));\n        }\n\n        HttpResponseMessage resposta;\n        resposta = await client.PostAsync(\"api/v1/tipificacaoSync\", form);\n\n        //recupera código da solicitação\n        resposta.EnsureSuccessStatusCode();\n        string codigoSolicitacao = await resposta.Content.ReadAsStringAsync();\n     }\n  }\n  catch (Exception e)\n  {\n     //Sua excessão\n  }\n}"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curlPost = curl_init(); \n\n$arqs = array(); \n\n$arqs[] = (new cURLFile(\"PATH ARQUIVO 1\", \"mime\", \"Arquivo 1\"));\n\ncurl_setopt_array($curlPost, array(\n\t\n\tCURLOPT_URL => \"URL_BASE\",\n\tCURLOPT_RETURNTRANSFER => true,\n\tCURLOPT_ENCODING => \"\",\n\tCURLOPT_MAXREDIRS => 10,\n\tCURLOPT_TIMEOUT => 0,\n\tCURLOPT_FOLLOWLOCATION => true,\n\tCURLOPT_SSL_VERIFYPEER => false,\n\tCURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n\tCURLOPT_CUSTOMREQUEST => \"POST\",\n\tCURLOPT_POSTFIELDS => array(\n\t\t'CodigoLegado'  => \"55555\",\n\t\t'arquivo[0]' => $arqs[0]\n\t),\n\tCURLOPT_HTTPHEADER => array(\n\t\t\"Authorization: Bearer {$token_simply__ }\",\n\t),\n));\n\n$responsePost = curl_exec($curlPost);\n\ncurl_close($curlPost);\n\nvar_dump($responsePost);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar fs = require('fs');\nvar options = {\n    'method': 'POST',\n    'url': 'URL_BASE',\n    'headers': {\n        'Authorization': 'Bearer ' + tokenJSON.access_token,\n        'Content-Type': 'multipart/form-data; boundary=123'\n    },\n    formData: {\n        'CodigoLegado': '55555',\n        'arquivo[0]': {\n            'value': fs.createReadStream('PATH ARQUIVO 1'),\n            'options': {\n                'filename': 'arquivo1.jpg',\n                'contentType': null\n            }\n        }\n    }\n};\n\nrequest(options, function(error, response) {\n    if (error) throw new Error(error);\n    console.log(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/tipificacaoSyncJson": {
+			"post": {
+				"tags": [
+					"Atomics Sincrono"
+				],
+				"summary": "Tipificação Síncrona Json",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEsse endpoint irá tipificar apenas documentos de RG e CNH e deve ser enviado 1 documento por solicitação.",
+				"operationId": "Tipificacao_PostSyncJson",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostJSon"
+						}
+					},
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostTipificacaoSync"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},
+		"/api/v1/tipificacaoExtracaoSync": {
+			"post": {
+				"tags": [
+					"Atomics IDOnline"
+				],
+				"summary": "Tipificação e Extração Síncrona (IDOnline)",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN** - Tipificação e Extração<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
+				"operationId": "Tipificacao_PostSyncExtracao",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostTipificacaoSync"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},
+		"/api/v1/tipificacaoExtracaoSyncJson": {
+			"post": {
+				"tags": [
+					"Atomics IDOnline"
+				],
+				"summary": "Tipificação e Extração Síncrona Json (IDOnline)",
+				"description": "Utilize esse procedimento para enviar documentos ao Atomics no formato Json.\r\n<br /><br />\r\nEste endpoint irá tipificar os seguintes documentos:\r\n- **RG Modelo antigo** - Tipificação e Extração\r\n- **DNI** - Apenas Tipificação\r\n- **CNH Modelo antigo** - Tipificação e Extração\r\n- **CNH Modelo novo** - Tipificação e Extração\r\n- **CIN** - Tipificação e Extração\r\n<br /><br />\r\nObs: deve ser enviado 1 documento por solicitação.",
+				"operationId": "Tipificacao_PostSyncExtracaoJson",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostJSon"
+						}
+					},
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostTipificacaoSync"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},
+		"/api/v1/tipificacao/incluirarquivos/{codigo}": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão de documento - Bytes",
+				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".\r\nSerá necessário o envio de apenas um documento por vez",
+				"operationId": "Tipificacao_IncluirArquivos",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/IncluirArquivo"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},
+		"/api/v1/tipificacao/incluirarquivosBase64": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Inclusão de documento - Base64",
+				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\". Será necessário o envio de apenas um documento por vez",
+				"operationId": "Tipificacao_IncluirArquivosBase64",
+				"consumes": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml",
+					"application/x-www-form-urlencoded"
+				],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/PostArquivoJson"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		},
+		"/api/v1/tipificacao/iniciarprocessamento/{codigo}": {
+			"post": {
+				"tags": [
+					"Atomics Assincrono"
+				],
+				"summary": "Iniciar processamento",
+				"description": "Esse endpoint é reponsável por iniciar o processamento de chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".",
+				"operationId": "Tipificacao_IniciarProcessamento",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					},
+					{
+						"name": "model",
+						"in": "body",
+						"required": true,
+						"schema": {
+							"$ref": "#/definitions/IniciarProcesso"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Sucesso na inclusão da solicitação.",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					"500": {
+						"description": "Ocorreu um erro na inclusão da solicitação."
+					}
+				}
+			}
+		}
+	},
+	"definitions": {
+		"RetornoSolicitacaoTipificacao": {
+			"type": "object",
+			"properties": {
+				"CodigoSolicitacao": {
+					"format": "int64",
+					"type": "integer"
+				},
+				"CodigoSolicitacaoVAR": {
+					"format": "int64",
+					"type": "integer"
+				},
+				"CodigoLegado": {
+					"type": "string"
+				},
+				"DataSolicitacao": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"DataProcessamento": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"Status": {
+					"format": "int32",
+					"enum": [
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					],
+					"x-enum-descriptions": [
+						"Pendente",
+						"Processado",
+						"Bloquado",
+						"Aguardando arquivo",
+						"Pendente reprocessamento"
+					],
+					"x-enum-varnames": [
+						"Pendente",
+						"Processado",
+						"Cancelado",
+						"Bloqueado",
+						"AguardandoArquivo",
+						"PendenteReprocessamento"
+					],
+					"type": "integer"
+				},
+				"TipoArquivo": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/RetornoTipoArquivo"
+					}
+				}
+			}
+		},
+		"RetornoTipoArquivo": {
+			"type": "object",
+			"properties": {
+				"TipoArquivo": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"NomeTipoArquivo": {
+					"type": "string"
+				},
+				"FolhaInteira": {
+					"type": "boolean"
+				},
+				"VersaoDocumento": {
+					"type": "string"
+				},
+				"PossuiAssinatura": {
+					"type": "boolean"
+				},
+				"CamposPreenchidos": {
+					"type": "boolean"
+				},
+				"CamposManuscritos": {
+					"type": "boolean"
+				},
+				"ImagemColorida": {
+					"type": "boolean"
+				},
+				"ImagemRotacionada": {
+					"type": "boolean"
+				},
+				"Metadados": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "object"
+					}
+				},
+				"Campos": {
+					"type": "object",
+					"additionalProperties": {
+						"type": "array",
+						"items": {
+							"$ref": "#/definitions/Campos"
+						}
+					}
+				},
+				"Indices": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/IndicesDoc"
+					}
+				},
+				"ArquivosRetorno": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ArquivoRetorno"
+					}
+				}
+			}
+		},
+		"Campos": {
+			"type": "object",
+			"properties": {
+				"Nome": {
+					"type": "string"
+				},
+				"Valor": {
+					"type": "object"
+				},
+				"Tipo": {
+					"format": "int32",
+					"type": "integer"
+				}
+			}
+		},
+		"IndicesDoc": {
+			"type": "object",
+			"properties": {
+				"Nome": {
+					"type": "string"
+				},
+				"Termos": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/TermoIndice"
+					}
+				}
+			}
+		},
+		"ArquivoRetorno": {
+			"type": "object",
+			"properties": {
+				"CodigoArquivo": {
+					"format": "int64",
+					"type": "integer"
+				},
+				"NomeArquivo": {
+					"type": "string"
+				},
+				"NomeCampo": {
+					"type": "string"
+				},
+				"Tipo": {
+					"format": "int32",
+					"type": "integer"
+				}
+			}
+		},
+		"TermoIndice": {
+			"type": "object",
+			"properties": {
+				"Termo": {
+					"type": "string"
+				},
+				"X": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Y": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Altura": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"Largura": {
+					"format": "int32",
+					"type": "integer"
+				}
+			}
+		},
+		"IDadosArquivo": {
+			"type": "object",
+			"properties": {
+				"NomeOriginal": {
+					"type": "string"
+				},
+				"ArquivoValido": {
+					"type": "boolean"
+				},
+				"Bytes": {
+					"format": "byte",
+					"type": "string"
+				}
+			}
+		},
+		"AntiFraude": {
+			"required": [
+				"CodigoLegado",
+				"Arquivo"
+			],
+			"type": "object",
+			"properties": {
+				"CodigoLegado": {
+					"description": "Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
+					"type": "string"
+				},
+				"Arquivo": {
+					"description": "Deve conter os arquivos que serão tipificados e comparados pelo Facematch (Selfie e Documento).",
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/IDadosArquivo"
+					}
+				},
+				"JsonParametros": {
+					"description": "Parâmetros informados ao VAR para customização de processamentos específicos (ver mais na seção \"Parâmetros de Entrada\")",
+					"type": "string"
+				}
+			}
+		},
+		"PostTipificacao": {
+			"required": [
+				"CodigoLegado",
+				"Arquivo"
+			],
+			"type": "object",
+			"properties": {
+				"EnvioParcial": {
+					"description": "Ao setar esse campo como true, você está sinalizando o Atomics que vai enviar os arquivos de forma assincrona",
+					"type": "boolean",
+					"example": false
+				},
+				"CodigoLegado": {
+					"description": "Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
+					"type": "String"
+				},
+				"Arquivo": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/IDadosArquivo"
+					}
+				},
+				"ExtrairDados": {
+					"description": "Campo que poderá ser utilizado para definir se os dados serão extraídos pelo Atomics e retornados pelo serviço.",
+					"type": "boolean",
+					"example": false
+				},
+				"PerfilTipificacao": {
+					"description": "Campo que poderá ser utilizado para definir qual conjunto de documentos será tipificado pela solicitação, esta informação será repassada pela Simply de acordo com os perfis criados para o cliente",
+					"type": "String"
+				}
+			}
+		},
+		"PostJSon": {
+			"type": "object",
+			"properties": {
+				"CodigoLegado": {
+					"type": "string"
+				},
+				"PerfilTipificacao": {
+					"type": "string"
+				},
+				"Arquivos": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ArquivoJson"
+					}
+				}
+			}
+		},
+		"ArquivoJson": {
+			"type": "object",
+			"properties": {
+				"NomeArquivo": {
+					"type": "string"
+				},
+				"ImageData": {
+					"format": "byte",
+					"type": "string"
+				}
+			}
+		},
+		"RetornoTipificacaoJsonSync": {
+			"type": "object",
+			"properties": {
+				"Arquivos": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ArquivoSync"
+					}
+				},
+				"ArquivosExtracao": {
+					"type": "object"
+				},
+				"CodigoSolicitacao": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"CodigoSolicitacaoVAR": {
+					"type": "object"
+				},
+				"CodigoLegado": {
+					"type": "string"
+				},
+				"DataSolicitacao": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"DataProcessamento": {
+					"format": "date-time",
+					"type": "string"
+				},
+				"Status": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"TipoArquivo": {
+					"type": "object"
+				}
+			}
+		},
+		"ArquivoSync": {
+			"type": "object",
+			"properties": {
+				"OCR": {
+					"type": "string"
+				},
+				"Nome": {
+					"type": "string"
+				},
+				"Hash": {
+					"type": "string"
+				},
+				"TipoArquivo": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/TipoArquivo"
+					}
+				}
+			}
+		},
+		"TipoArquivo": {
+			"type": "object",
+			"properties": {
+				"TipoArquivo": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"NomeTipoArquivo": {
+					"type": "string"
+				},
+				"FolhaInteira": {
+					"type": "boolean"
+				},
+				"VersaoDocumento": {
+					"type": "object"
+				},
+				"PossuiAssinatura": {
+					"type": "object"
+				},
+				"CamposPreenchidos": {
+					"type": "object"
+				},
+				"CamposManuscritos": {
+					"type": "object"
+				},
+				"ImagemColorida": {
+					"type": "object"
+				},
+				"ImagemRotacionada": {
+					"type": "boolean"
+				},
+				"Metadados": {
+					"$ref": "#/definitions/MetadadosSync"
+				},
+				"Campos": {
+					"type": "object"
+				},
+				"Indices": {
+					"type": "object"
+				},
+				"ArquivosRetorno": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/ArquivosRetorno"
+					}
+				}
+			}
+		},
+		"MetadadosSync": {
+			"type": "object",
+			"properties": {
+				"EstadoTexto": {
+					"type": "string"
+				},
+				"BrasaoTexto": {
+					"type": "string"
+				},
+				"OrgaoTexto": {
+					"type": "string"
+				},
+				"AlfabetizadoTexto": {
+					"type": "string"
+				},
+				"RegistroTexto": {
+					"type": "string"
+				},
+				"ExpedicaoTexto": {
+					"type": "string"
+				},
+				"NomeTexto": {
+					"type": "string"
+				},
+				"FiliacaoTexto": {
+					"type": "string"
+				},
+				"NomePaiTexto": {
+					"type": "string"
+				},
+				"NomeMaeTexto": {
+					"type": "string"
+				},
+				"NaturalidadeTexto": {
+					"type": "string"
+				},
+				"DataNascimentoTexto": {
+					"type": "string"
+				},
+				"OrigemTexto": {
+					"type": "string"
+				},
+				"CPFTexto": {
+					"type": "string"
+				},
+				"ViaTexto": {
+					"type": "string"
+				}
+			}
+		},
+		"ArquivosRetorno": {
+			"type": "object",
+			"properties": {
+				"CodigoArquivo": {
+					"format": "int32",
+					"type": "integer"
+				},
+				"NomeArquivo": {
+					"type": "string"
+				},
+				"NomeCampo": {
+					"type": "object"
+				},
+				"Tipo": {
+					"format": "int32",
+					"type": "integer"
+				}
+			}
+		},
+		"PostTipificacaoSync": {
+			"required": [
+				"CodigoLegado",
+				"Arquivo"
+			],
+			"type": "object",
+			"properties": {
+				"CodigoLegado": {
+					"description": "Campo que poderá ser utilizado para identificar a identidade do sistema legado.",
+					"type": "string"
+				},
+				"Arquivo": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/IDadosArquivo"
+					}
+				}
+			}
+		},
+		"IncluirArquivo": {
+			"required": [
+				"CodigoSolicitacao",
+				"Arquivo"
+			],
+			"type": "object",
+			"properties": {
+				"CodigoSolicitacao": {
+					"description": "codigo_de_solicitacao",
+					"type": "string"
+				},
+				"Arquivo": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/IDadosArquivo"
+					}
+				}
+			}
+		},
+		"PostArquivoJson": {
+			"type": "object",
+			"properties": {
+				"CodigoSolicitacao": {
+					"type": "string"
+				},
+				"NomeArquivo": {
+					"type": "string"
+				},
+				"ImageData": {
+					"format": "byte",
+					"type": "string"
+				}
+			}
+		},
+		"IniciarProcesso": {
+			"required": [
+				"CodigoSolicitacao"
+			],
+			"type": "object",
+			"properties": {
+				"CodigoSolicitacao": {
+					"description": "codigo_de_solicitacao",
+					"type": "string"
+				}
+			}
+		},
+		"Login": {
+			"required": [
+				"username",
+				"password"
+			],
+			"type": "object",
+			"properties": {
+				"username": {
+					"description": "informe_seu_usuario",
+					"type": "string"
+				},
+				"password": {
+					"description": "informe_sua_senha",
+					"type": "string"
+				},
+				"grant_type": {
+					"description": "password",
+					"type": "string"
+				}
+			}
+		},
+		"LoginSucesso": {
+			"type": "object",
+			"properties": {
+				"access_token": {
+					"type": "string",
+					"example": "token_de_acesso"
+				},
+				"token_type": {
+					"type": "String",
+					"example": "bearer"
+				},
+				"expires_in": {
+					"type": "string",
+					"example": "86399"
+				},
+				"userName": {
+					"type": "string",
+					"example": "nome_usuario"
+				},
+				".issued": {
+					"format": "date-time",
+					"type": "string",
+					"example": "Tue, 17 Apr 2018 18:48:10 GMT"
+				},
+				".expires": {
+					"format": "date-time",
+					"type": "string",
+					"example": "Wed, 18 Apr 2018 18:48:10 GMT"
+				}
+			}
+		},
+		"LoginErro": {
+			"type": "object",
+			"properties": {
+				"error": {
+					"type": "string",
+					"example": "O usuario/senha informado não é válido."
+				},
+				"error_description": {
+					"type": "string",
+					"example": "O usuario/senha informado não é válido."
+				}
+			}
+		}
+	},
+	"x-servers": [
+		{
+			"url": "https://atomics-hom.simply.com.br",
+			"description": "Homologação"
+		},
+		{
+			"url": "https://atomics-api.simply.com.br",
+			"description": "Produção"
+		}
+	],
+	"tags": [
+		{
+			"name": "Autenticacao",
+			"description": "Nessa seção, você encontrará informações sobre como se autenticar na aplicação",
+			"x-displayName": "Atomics - Login"
+		},
+		{
+			"name": "Atomics Sincrono",
+			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"x-displayName": "Atomics Sincrono"
+		},
+		{
+			"name": "Atomics Assincrono",
+			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"x-displayName": "Atomics Assincrono"
+		},
+		{
+			"name": "Atomics IDOnline",
+			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"x-displayName": "Atomics IDOnline"
+		},
+		{
+			"name": "DadosEstruturados",
+			"description": "Para facilitar a utilização e manipulação dos dados, o Atomics retorna os dados de alguns documentos de forma estruturada.\n\nDocumentos:\n\n- RG Frente e Verso\n- CNH Frente e Verso\n- DNI Frente e Verso\n- CIN Frente e Verso\n- CRLV\n- CRLV Eletrônico\n\n# Dicionário de Dados\n\n## RG Frente\n\n**RG Frente**\n\n## Exemplos de retorno\n\n### RG\n\n```json\n{\n  \"TipoArquivo\": 104,\n  \"NomeTipoArquivo\": \"Identificação Pessoal\",\n  \"FolhaInteira\": false,\n  \"VersaoDocumento\": null,\n  \"PossuiAssinatura\": null,\n  \"CamposPreenchidos\": null,\n  \"CamposManuscritos\": null,\n  \"ImagemColorida\": null,\n  \"ImagemRotacionada\": true,\n  \"Metadados\": {\n    \"Assertividade\": \"0,9999354\",\n    \"RegistroTexto\": \"999.999.999\",\n    \"ExpedicaoTexto\": \"01/NOV/2004\",\n    \"NomeTexto\": \"FULANO DA SILVA\",\n    \"NomePaiTexto\": \"PAI DO FULANO DA SILVA\",\n    \"NomeMaeTexto\": \"MAE DO FULANO DA SILVA\",\n    \"NaturalidadeTexto\": \"BELO HORIZONTE-MG\",\n    \"DataNascimentoTexto\": \"16/OUT/1957\",\n    \"OrigemTexto\": \"CAS. LV-8 FLS-189\",\n    \"ViaTexto\": \"0\"\n  },\n  \"Campos\": null,\n  \"Indices\": null,\n  \"ArquivosRetorno\": []\n}\n```\n\n### CNH\n\n```json\n{\n  \"TipoArquivo\": 105,\n  \"NomeTipoArquivo\": \"CNH Frente\",\n  \"FolhaInteira\": false,\n  \"VersaoDocumento\": null,\n  \"PossuiAssinatura\": null,\n  \"CamposPreenchidos\": null,\n  \"CamposManuscritos\": null,\n  \"ImagemColorida\": null,\n  \"ImagemRotacionada\": true,\n  \"Metadados\": {\n    \"Assertividade\": \"0,9988832\",\n    \"NomeTexto\": \"FULANO DA SILVA\",\n    \"IdentidadeTexto\": \"9999999 SSP/MG\",\n    \"CPFTexto\": \"999.999.999-99\",\n    \"DataNascimentoTexto\": \"16/03/1959\",\n    \"NomePaiTexto\": \"PAI DO FULANO DA SILVA\",\n    \"NomeMaeTexto\": \"MAE DO FULANO DA SILVA\",\n    \"RegistroTexto\": \"09999999999\",\n    \"ValidadeTexto\": \"03/04/2023\",\n    \"PrimeiraHabilitacaoTexto\": \"09/10/1997\",\n    \"ObservacaoTexto\": \"\",\n    \"DataEmissaoTexto\": \"04/04/2018\",\n    \"LocalTexto\": \"FRANCA SP\"\n  },\n  \"Campos\": null,\n  \"Indices\": null,\n  \"ArquivosRetorno\": []\n}\n```\n\n### DNI\n\n```json\n{\n  \"TipoArquivo\": 104,\n  \"NomeTipoArquivo\": \"DNI\",\n  \"FolhaInteira\": false,\n  \"VersaoDocumento\": null,\n  \"PossuiAssinatura\": null,\n  \"CamposPreenchidos\": null,\n  \"CamposManuscritos\": null,\n  \"ImagemColorida\": null,\n  \"ImagemRotacionada\": true,\n  \"Metadados\": {\n    \"Assertividade\": \"0,9944154\",\n    \"TipoRGTexto\": \"MODELO NOVO\",\n    \"EstadoTexto\": \"SP\",\n    \"NomeTexto\": \"FULANO DA SILVA\",\n    \"NomePaiTexto\": \"PAI DO FULANO DA SILVA\",\n    \"NomeMaeTexto\": \"MAE DO FULANO DA SILVA\",\n    \"DataNascimentoTexto\": \"13/07/1960\",\n    \"OrgaoExpedidorTexto\": \"SSP-SP\",\n    \"NaturalidadeTexto\": \"MARILENA - PR\",\n    \"CPFTexto\": \"999999999/99\"\n  },\n  \"Campos\": null,\n  \"Indices\": null,\n  \"ArquivosRetorno\": []\n}\n```\n\n### CIN\n\n```json\n{\n  \"TipoArquivo\": 104,\n  \"NomeTipoArquivo\": \"CIN\",\n  \"FolhaInteira\": false,\n  \"VersaoDocumento\": null,\n  \"PossuiAssinatura\": null,\n  \"CamposPreenchidos\": null,\n  \"CamposManuscritos\": null,\n  \"ImagemColorida\": null,\n  \"ImagemRotacionada\": true,\n  \"Metadados\": {\n    \"Assertividade\": \"0,9944154\",\n    \"NomeTexto\": \"FULANO DA SILVA\",\n    \"CPFTexto\": \"999999999/99\",\n    \"Filiacao1Texto\": \"Filiacao1 DO FULANO DA SILVA\",\n    \"Filiacao2Texto\": \"Filiacao2 DO FULANO DA SILVA\",\n    \"NascimentoTexto\": \"13/07/1960\",\n    \"NaturalidadeTexto\": \"MARILENA - PR\",\n    \"NacionalidadeTexto\": \"BR\",\n    \"EstadoTexto\": \"SP\",\n    \"OrgaoTexto\": \"SECRETARIA DE SEGURANÇA PÚBLICA\",\n    \"ImpossibilidadeDeAssinar\": \"NÃO\",\n    \"AlfabetizadoTexto\": \"SIM\",\n    \"Qualidade\": \"100\",\n    \"FaceMatch\": \"0\"\n  },\n  \"Campos\": null,\n  \"Indices\": null,\n  \"ArquivosRetorno\": []\n}\n```",
+			"x-displayName": "Dados Estruturados"
+		},
+		{
+			"name": "ParamentrosEntrada",
+			"description": "Em certos processamentos pontuais no Atomics, um arquivo de parâmetros pode ser enviado no momento da inclusão.\n\n**Exemplos de uso:**\n\n- Pré-Tipificação de Documentos\n\n---\n\n## Pré-Tipificação de Documentos\n\nPara que os documentos de uma solicitação possam ser tipificados manualmente (pré-tipificados), um arquivo JSON deve ser enviado no momento da inclusão da solicitação, informando o nome do arquivo e o tipo que deverá ser tipificado.\n\n### Exemplo de JSON\n\n```json\n[\n  { \"NomeArquivo\": \"Arquivo1.jpg\", \"NomeTipo\": \"RG Frente\" },\n  { \"NomeArquivo\": \"Arquivo2.jpg\", \"NomeTipo\": \"RG Verso\" },\n  { \"NomeArquivo\": \"Arquivo3.jpg\", \"NomeTipo\": \"Selfie\" }\n]\n```",
+			"x-displayName": "Parâmetros de Entrada"
+		},
+		{
+			"name": "Postman",
+			"description": "O Postman é uma solução para consultas de API, permitindo analisar de ponta-a-ponta os retornos.\n\nO link para o download é https://www.getpostman.com/downloads/ \n\nSiga as instruções de uso após o download e a instalação do software:\n\nAntes de começar a configuração no Postman, certifique-se que você possui o arquivo JSON para importar as configurações. Caso não possua, contate a equipe do Suporte ou seu Analista de Negócio responsável para adquirir o mesmo \n\n## Importação \nPara importar o arquivo de configuração, basta abrir o Postman e clicar em Import.\n\n<img src=\"https://simply-atomics.github.io/imagem1.jpg\" alt=\"\"><img src=\"https://simply-atomics.github.io/imagem2.jpg\" alt=\"\">Após Importado, aparecerá na aba do canto esquerdo a pasta com as configurações definidas. Ao clicar na aba, haverá quatro opções \n\n\n\n- Login\n\n- Tipificacao – Incluir\n\n- Tipificacao – Consulta\n\n- RetornarArquivos\n\n## Login \n\nPara logar, coloque seu login e senha no Body \n\n<img src=\"https://simply-atomics.github.io/imagem4.jpg\" alt=\"\">\n\n<pre>Aguardar a resposta “200 OK”</pre> \n\n## Tipificação - Incluir\n\nInforme os dados da solicitação ( arquivos, perfil, código legado ) e clique em <code>Send</code>\n\n<img src=\"https://simply-atomics.github.io/imagem6.jpg\" alt=\"\">\n\nO retorno ficará salvo em uma variável, chamada solicitacao que será utilizada na próxima etapa.\n\n## Tipificação - Consulta \n\nPara consultar o retorno já tipificado (executado no passo anterior) basta clicar em <code>Send</code>.\n\n<img src=\"https://simply-atomics.github.io/imagem8.jpg\" alt=\"\">\n\nEm Response é importante verificar o Status da tipificação, **Status = 1 para tipificado** e **Status = 0 para não tipificado**\n\n**Observações:** \n\nPara consultar documentos já tipificados, basta ingressar em Login (Etapa 1) e Solicitacao (Etapa 3) porém é necessário alterar a url de retorno.\n\nUrl de retorno: https://atomics-hom.simply.com.br/api/v1/tipificacao/{{solicitacao}} \n\nPor exemplo, para verificar o retorno do código de fila 7103950 basta substituir {{solicitacao}} pelo código(7103950). Sendo assim a url https://atomics-hom.simply.com.br/api/v1/tipificacao/7103950 \n\n## Retorno de arquivos \n\nEste campo é utilizado, para pegar o retorno dos documentos, como no caso do IN100. \n\nObserve que após ao “codArquivo=” devera ser inserido o código de solicitação gerado na aba Tipificação - Consulta. \n\n<img src=\"https://simply-atomics.github.io/imagem9.jpg\" alt=\"\">\n\n## Informações Importantes \n\nNo POSTMAN para envio da tipificação apenas os campos **CodigoLegado** e **PerfilTipificacao** são obrigatórios.\n\n**CodigoLegado** - Campo aberto, para controle com relação a alguma informação de outro sistema que deseje vincular a solicitação.\n\n**PerfilTipificacao** - Você deve enviar um perfil que seja válido e previamente configurado com os documentos que serão enviados. Esse perfil deve ser pré-configurado no administrador do Atomics.\n\nVocê deve fazer um pooling verificando o campo Status. Sobre o campo ArquivoRetorno, ele só é retornado em algumas situações pré-configuradas no seu administrador \n\nO CodigoArquivo, também só é informado mediante algumas configurações no seu perfil.\n\n",
+			"x-displayName": "Postman"
+		},
+		{
+			"name": "Documentos Globais",
+			"description": "Está é a lista de documentos globais retornados pelo Atomics \n\n<table style=\"width:auto; height: 590px;\">\n<thead>\n<tr>\n<td style=\"width:121px; text-align: center;\"><strong>Código Documento</strong></td>\n<td style=\"width:413px; text-align: center;\"><strong>Descrição</strong></td>\n</tr>\n</thead>\n<tbody>\n<tr><td>-1</td><td style=\"text-align: center;\">Não Identificado</td></tr>\n<tr><td>4</td><td style=\"text-align: center;\">Identificação Pessoal</td></tr>\n<tr><td>5</td><td style=\"text-align: center;\">Comprovante Residência</td></tr>\n<tr><td>7</td><td style=\"text-align: center;\">Extrato de Pagamento</td></tr>\n<tr><td>8</td><td style=\"text-align: center;\">CPF</td></tr>\n<tr><td>9</td><td style=\"text-align: center;\">Duplicata</td></tr>\n<tr><td>10</td><td style=\"text-align: center;\">Formulário Padrão</td></tr>\n<tr><td>11</td><td style=\"text-align: center;\">Driver License</td></tr>\n<tr><td>12</td><td style=\"text-align: center;\">Social Security Number</td></tr>\n<tr><td>14</td><td style=\"text-align: center;\">Extrato Bancário</td></tr>\n<tr><td>6</td><td style=\"text-align: center;\">Declaração Residência</td></tr>\n<tr><td>44</td><td style=\"text-align: center;\">Carta de Concessão INSS</td></tr>\n<tr><td>100</td><td style=\"text-align: center;\">Boleto Bancário</td></tr>\n<tr><td>101</td><td style=\"text-align: center;\">Documento com Foto</td></tr>\n<tr><td>102</td><td style=\"text-align: center;\">CRLV</td></tr>\n<tr><td>103</td><td style=\"text-align: center;\">RG/DNI/CIN Frente</td></tr>\n<tr><td>104</td><td style=\"text-align: center;\">RG/DNI/CIN Verso</td></tr>\n<tr><td>105</td><td style=\"text-align: center;\">CNH</td></tr>\n<tr><td>106</td><td style=\"text-align: center;\">Selfie</td></tr>\n<tr><td>107</td><td style=\"text-align: center;\">Documento Classe</td></tr>\n<tr><td>108</td><td style=\"text-align: center;\">CREA</td></tr>\n<tr><td>109</td><td style=\"text-align: center;\">CRO</td></tr>\n<tr><td>110</td><td style=\"text-align: center;\">CRM</td></tr>\n<tr><td>111</td><td style=\"text-align: center;\">OAB</td></tr>\n<tr><td>112</td><td style=\"text-align: center;\">Extrato FGTS</td></tr>\n<tr><td>113</td><td style=\"text-align: center;\">Certidão de Nascimento</td></tr>\n<tr><td>114</td><td style=\"text-align: center;\">Carteira Exercito Verso</td></tr>\n<tr><td>115</td><td style=\"text-align: center;\">Carteira Exercito Frente</td></tr>\n<tr><td>116</td><td style=\"text-align: center;\">Arquivo de Áudio</td></tr>\n<tr><td>117</td><td style=\"text-align: center;\">Certidão de Casamento</td></tr>\n<tr><td>118</td><td style=\"text-align: center;\">Contrato Social</td></tr>\n<tr><td>119</td><td style=\"text-align: center;\">Cartão CNPJ</td></tr>\n<tr><td>120</td><td style=\"text-align: center;\">Certidão de Óbito</td></tr>\n<tr><td>0</td><td style=\"text-align: center;\">Página em Branco</td></tr>\n</tbody>\n</table>"
+		},
+		{
+			"name": "InclusaoAssincrona",
+			"description": "### 📄 Envio de Documentos – Processamento Assíncrono\n\nUtilize este procedimento para realizar o **envio assíncrono de documentos** ao **Atomics**.\n\nO fluxo é composto por **3 etapas principais**:\n\n1. Criação da solicitação de tipificação  \n2. Envio dos documentos  \n3. Início do processamento\n\n---\n\n## 1️⃣ Criar solicitação de tipificação\n\nRealize um **POST** no endpoint abaixo para criar a solicitação:\n\n**Endpoint**  \n`POST /api/v1/tipificacao`\n\n[Ver documentação do endpoint](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_Post)\n\n### Parâmetros de entrada\n\n| Campo | Tipo | Obrigatório | Descrição |\n|------|------|-------------|-----------|\n| EnvioParcial | boolean | Não | Quando `true`, indica que os documentos serão enviados de forma assíncrona. |\n| CodigoLegado | string | **Sim** | Identificador do sistema legado que está realizando a solicitação. |\n| ExtrairDados | boolean | Não | Define se o Atomics deve extrair e retornar os dados dos documentos processados. |\n| PerfilTipificacao | string | Não | Define o perfil de tipificação a ser utilizado. Esse valor é fornecido pela Simply conforme os perfis configurados para o cliente. |\n\n### Exemplo de payload\n\n```json\n{\n  \"EnvioParcial\": true,\n  \"CodigoLegado\": \"{codigo}\",\n  \"ExtrairDados\": true,\n  \"PerfilTipificacao\": \"{perfil}\"\n}\n```\n\n**Importante**  \nAo definir `EnvioParcial = true`, o Atomics irá **aguardar o envio dos documentos** antes de iniciar o processamento.\n\n---\n\n## 2️⃣ Envio dos documentos\n\nApós a criação da solicitação, os documentos devem ser enviados **individualmente**, utilizando o `codigo_de_solicitacao` retornado no passo anterior.\n\n### Opções de envio\n\n- **Envio de arquivos em bytes**  \n`POST /api/v1/tipificacao/incluirarquivos/{codigo_de_solicitacao}`  \n[Ver endpoint](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IncluirArquivos)\n\n- **Envio de arquivos em Base64**  \n`POST /api/v1/tipificacao/incluirarquivos/{codigo_de_solicitacao}`  \n[Ver endpoint](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IncluirArquivosBase64)\n\nRepita essa etapa até que **todos os documentos** da solicitação tenham sido enviados.\n\n---\n\n## 3️⃣ Iniciar o processamento\n\nApós o envio de todos os arquivos, é necessário informar ao Atomics que o processamento pode ser iniciado.\n\n**Endpoint**  \n`POST /api/v1/tipificacao/iniciarprocessamento/{codigo_de_solicitacao}`\n\n[Ver endpoint](https://simply-atomics.github.io/#tag/Tipificacao/operation/Tipificacao_IniciarProcessamento)\n\n---\n\n## ✅ Resultado\n\nApós a chamada de início de processamento, o **Atomics iniciará o processamento da solicitação de forma assíncrona**, conforme os parâmetros informados.",
+			"x-displayName": "Inclusão Assíncrona"
+		}
+	],
+	"x-tagGroups": [
+		{
+			"name": "Rotas da aplicação",
+			"tags": [
+				"Autenticacao",
+				"Atomics Sincrono",
+				"Atomics Assincrono",
+				"Atomics IDOnline",
+				"Operacional",
+				"InclusaoAssincrona"
+			]
+		},
+		{
+			"name": "Informações Adicionais",
+			"tags": [
+				"DadosEstruturados",
+				"ParamentrosEntrada",
+				"Postman",
+				"Documentos Globais"
+			]
+		}
+	]
 }
