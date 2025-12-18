@@ -848,8 +848,8 @@
 				},
 				"ArquivosExtracao": {
 					"type": "object",
-					"additionalProperties": {
-						"type": "object"
+					"items": {
+						"$ref": "#/definitions/RetornoExtracaoMultiPaginas"
 					}
 				},
 				"ExtracaoMultipaginas": {
@@ -992,6 +992,17 @@
 					"items": {
 						"$ref": "#/definitions/TermoIndice"
 					}
+				}
+			}
+		},
+		"RetornoExtracaoMultiPaginas": {
+			"type": "object",
+			"properties": {
+				"property1": {
+					"type": "object"
+				},
+				"property2": {
+					"type": "object"
 				}
 			}
 		},
