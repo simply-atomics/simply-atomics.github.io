@@ -847,10 +847,7 @@
 					}
 				},
 				"ArquivosExtracao": {
-					"type": "object",
-					"additionalProperties": {
-						"type": "object"
-					}
+					"type": "object"
 				},
 				"ExtracaoMultipaginas": {
 					"type": "array",
@@ -998,10 +995,7 @@
 		"RetornoExtracaoMultiPaginas": {
 			"type": "object",
 			"properties": {
-				"property1": {
-					"type": "object"
-				},
-				"property2": {
+				"property_1": {
 					"type": "object"
 				}
 			}
