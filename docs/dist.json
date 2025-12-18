@@ -848,14 +848,14 @@
 				},
 				"ArquivosExtracao": {
 					"type": "object",
-					"items": {
-						"$ref": "#/definitions/RetornoExtracaoMultiPaginas"
+					"additionalProperties": {
+						"type": "object"
 					}
 				},
 				"ExtracaoMultipaginas": {
 					"type": "array",
-					"additionalProperties": {
-						"type": "object"
+					"items": {
+						"$ref": "#/definitions/RetornoExtracaoMultiPaginas"
 					}
 				},
 				"CodigoSolicitacao": {
