@@ -381,7 +381,7 @@
 				"tags": [
 					"InclusaoAssincrona"
 				],
-				"summary": "Inclusão de arquivo - Bytes",
+				"summary": "Inclusão de Arquivo - Bytes",
 				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".\r\nSerá necessário o envio de apenas um documento por vez",
 				"operationId": "Tipificacao_IncluirArquivos",
 				"consumes": [],
@@ -426,7 +426,7 @@
 				"tags": [
 					"InclusaoAssincrona"
 				],
-				"summary": "Inclusão de arquivo - Base64",
+				"summary": "Inclusão de Arquivo - Base64",
 				"description": "Esse endpoint irá enviar os arquivos para as chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\". Será necessário o envio de apenas um documento por vez",
 				"operationId": "Tipificacao_IncluirArquivosBase64",
 				"consumes": [
@@ -471,7 +471,7 @@
 				"tags": [
 					"InclusaoAssincrona"
 				],
-				"summary": "Iniciar processamento",
+				"summary": "Iniciar Processamento",
 				"description": "Esse endpoint é reponsável por iniciar o processamento de chamadas assíncronas no sistema onde o parâmetro \"EnviarParcial\" foi setado como \"true\".",
 				"operationId": "Tipificacao_IniciarProcessamento",
 				"consumes": [],
