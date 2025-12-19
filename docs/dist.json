@@ -1481,12 +1481,12 @@
 		},
 		{
 			"name": "AtomicsSincrono",
-			"description": "# Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/ProcessamentoSincrono.png\" alt=\"\">\n\n Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas. \n # Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/ProcessamentoSincrono.png\" alt=\"\">\n",
 			"x-displayName": "Atomics Processamento Síncrono"
 		},
 		{
 			"name": "AtomicsIDOnline",
-			"description": "# Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/IDOnline.png\" alt=\"\">\n\n Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas. \n # Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/IDOnline.png\" alt=\"\">\n",
 			"x-displayName": "Atomics IDOnline"
 		},
 		{
