@@ -1476,7 +1476,7 @@
 		},
 		{
 			"name": "AtomicsAssincrono",
-			"description": "# Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/ProcessamentoAssincrono.png\" alt=\"\">\n\n Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas. \n # Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/ProcessamentoAssincrono.png\" alt=\"\">\n",
 			"x-displayName": "Atomics Processamento Assíncrono"
 		},
 		{
