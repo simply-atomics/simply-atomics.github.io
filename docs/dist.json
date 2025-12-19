@@ -376,6 +376,126 @@
 				]
 			}
 		},
+		"/api/v1/tipificacao/retornararquivo/{codigo}": {
+			"get": {
+				"tags": [
+					"AtomicsAssincrono"
+				],
+				"summary": "Download de Arquivos - Bytes",
+				"description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
+				"operationId": "Tipificacao_RetornarArquivo",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"description": "Codigo da solicitação",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					},
+					{
+						"name": "codigoArquivo",
+						"in": "query",
+						"description": "Codigo do arquivo a ser retornado",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "object"
+						}
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "\npublic static async Task<byte[]> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n      byte[] byteArray = await client.GetByteArrayAsync(\"api/v1/tipificacao/retornararquivo/\n      + codigoSolicitacao + \"?codigoArquivo = \" + codigoArquivo);\n      return byteArray;\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+					}
+				]
+			}
+		},
+		"/api/v1/tipificacao/retornarArquivoBase64/{codigo}": {
+			"get": {
+				"tags": [
+					"AtomicsAssincrono"
+				],
+				"summary": "Download de Arquivos - Base64",
+				"description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
+				"operationId": "Tipificacao_RetornarArquivoJson",
+				"consumes": [],
+				"produces": [
+					"application/json",
+					"text/json",
+					"application/xml",
+					"text/xml"
+				],
+				"parameters": [
+					{
+						"name": "codigo",
+						"in": "path",
+						"description": "Codigo da solicitação",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					},
+					{
+						"name": "codigoArquivo",
+						"in": "query",
+						"description": "Codigo do arquivo a ser retornado",
+						"required": true,
+						"type": "integer",
+						"format": "int64"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"type": "object"
+						}
+					}
+				},
+				"x-codeSamples": [
+					{
+						"lang": "C#",
+						"label": "C#",
+						"source": "\npublic static async Task<dynamic> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n     string resposta = await client.GetStringAsync(\"api/v1/tipificacao/retornararquivoBase64/\n     + codigoSolicitacao + \"?codigoArquivo=\" + codigoArquivo);\n     dynamic retorno = resposta;\n    }\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
+					},
+					{
+						"lang": "PHP",
+						"label": "PHP",
+						"source": "\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
+					},
+					{
+						"lang": "NODE",
+						"label": "NODE",
+						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
+					}
+				]
+			}
+		},
 		"/api/v1/tipificacao/incluirarquivos/{codigo}": {
 			"post": {
 				"tags": [
@@ -509,126 +629,6 @@
 						"description": "Ocorreu um erro na inclusão da solicitação."
 					}
 				}
-			}
-		},
-		"/api/v1/tipificacao/retornararquivo/{codigo}": {
-			"get": {
-				"tags": [
-					"AtomicsAssincrono"
-				],
-				"summary": "Download de Arquivos - Bytes",
-				"description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
-				"operationId": "Tipificacao_RetornarArquivo",
-				"consumes": [],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "codigo",
-						"in": "path",
-						"description": "Codigo da solicitação",
-						"required": true,
-						"type": "integer",
-						"format": "int64"
-					},
-					{
-						"name": "codigoArquivo",
-						"in": "query",
-						"description": "Codigo do arquivo a ser retornado",
-						"required": true,
-						"type": "integer",
-						"format": "int64"
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "OK",
-						"schema": {
-							"type": "object"
-						}
-					}
-				},
-				"x-codeSamples": [
-					{
-						"lang": "C#",
-						"label": "C#",
-						"source": "\npublic static async Task<byte[]> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n      byte[] byteArray = await client.GetByteArrayAsync(\"api/v1/tipificacao/retornararquivo/\n      + codigoSolicitacao + \"?codigoArquivo = \" + codigoArquivo);\n      return byteArray;\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
-					},
-					{
-						"lang": "PHP",
-						"label": "PHP",
-						"source": "\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
-					},
-					{
-						"lang": "NODE",
-						"label": "NODE",
-						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
-					}
-				]
-			}
-		},
-		"/api/v1/tipificacao/retornarArquivoBase64/{codigo}": {
-			"get": {
-				"tags": [
-					"AtomicsAssincrono"
-				],
-				"summary": "Download de Arquivos - Base64",
-				"description": "Através deste procedimento você poderá recuperar os arquivos de retorno gerados pelo Atomics durante o processo de tipificação/extração.",
-				"operationId": "Tipificacao_RetornarArquivoJson",
-				"consumes": [],
-				"produces": [
-					"application/json",
-					"text/json",
-					"application/xml",
-					"text/xml"
-				],
-				"parameters": [
-					{
-						"name": "codigo",
-						"in": "path",
-						"description": "Codigo da solicitação",
-						"required": true,
-						"type": "integer",
-						"format": "int64"
-					},
-					{
-						"name": "codigoArquivo",
-						"in": "query",
-						"description": "Codigo do arquivo a ser retornado",
-						"required": true,
-						"type": "integer",
-						"format": "int64"
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "OK",
-						"schema": {
-							"type": "object"
-						}
-					}
-				},
-				"x-codeSamples": [
-					{
-						"lang": "C#",
-						"label": "C#",
-						"source": "\npublic static async Task<dynamic> RetornarArquivosByte(string codigoSolicitacao, string codigoArquivo)\n{\n  try\n  {\n    if (BearerToken == null)\n      throw new Exception(\"O token não foi recuperado.Utilize o método de login.\");\n\n    using (var client = new HttpClient(new HttpClientHandler\n    {\n      AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip\n    }))\n    {\n      client.BaseAddress = new Uri(UrlBase);\n      client.DefaultRequestHeaders.Add(\"Authorization\", \"Bearer \" + BearerToken); \n     string resposta = await client.GetStringAsync(\"api/v1/tipificacao/retornararquivoBase64/\n     + codigoSolicitacao + \"?codigoArquivo=\" + codigoArquivo);\n     dynamic retorno = resposta;\n    }\n    }\n  }\n  catch (Exception e)\n  {\n    //Sua excessão\n  }\n  return null;\n}"
-					},
-					{
-						"lang": "PHP",
-						"label": "PHP",
-						"source": "\n$curl = curl_init();\n\n$codigo = \"\"\n$codigoArquivo = \"\"\ncurl_setopt_array($curl, array(\n  CURLOPT_URL => \"URL_BASE/$codigo?codigoArquivo=$codigoArquivo'\",\n  CURLOPT_RETURNTRANSFER => true,\n  CURLOPT_ENCODING => '',\n  CURLOPT_MAXREDIRS => 10,\n  CURLOPT_TIMEOUT => 0,\n  CURLOPT_FOLLOWLOCATION => true,\n  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,\n  CURLOPT_CUSTOMREQUEST => 'GET',\n  CURLOPT_HTTPHEADER => array(\n    'Authorization: Bearer {$token_simply__ }\n  ),\n));\n\n$response = curl_exec($curl);\n\ncurl_close($curl);"
-					},
-					{
-						"lang": "NODE",
-						"label": "NODE",
-						"source": "\nvar request = require('request');\nvar options = {\n  'method': 'GET',\n  'url': 'URL_BASE/retornararquivoBase64/${codigo}?codigoArquivo=${codigoArquivo}'',\n  'headers': {\n    'Authorization': 'Bearer ' + tokenJSON.access_token,'\n  }\n};\nrequest(options, function (error, response) {\n  if (error) throw new Error(error);\n  console.log(response.body);\n});"
-					}
-				]
 			}
 		},
 		"/api/v1/tipificacaoSync": {
@@ -1476,17 +1476,17 @@
 		},
 		{
 			"name": "AtomicsAssincrono",
-			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"description": "#Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/ProcessamentoAssincrono.png\" alt=\"\">\n\n Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
 			"x-displayName": "Atomics Processamento Assíncrono"
 		},
 		{
 			"name": "AtomicsSincrono",
-			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"description": "#Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/ProcessamentoSincrono.png\" alt=\"\">\n\n Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
 			"x-displayName": "Atomics Processamento Síncrono"
 		},
 		{
 			"name": "AtomicsIDOnline",
-			"description": "Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
+			"description": "#Diagrama de Sequência \n <img src=\"https://simply-atomics.github.io/IDOnline.png\" alt=\"\">\n\n Nessa seção, você encontrará informações sobre como enviar solicitações para a tipificação e consultar as mesmas.",
 			"x-displayName": "Atomics IDOnline"
 		},
 		{
